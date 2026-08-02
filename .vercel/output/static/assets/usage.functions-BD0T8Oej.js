@@ -1,0 +1,1 @@
+import{A as e}from"./QueryClientProvider-CqOAZd49.js";import{i as t,n}from"./createLucideIcon-s8Nw8ogq.js";var r=t({method:`GET`}).middleware([n]).handler(e(`787e0a959e011f95b58ac21f04b325d4cce5874ea7030722a8665f02a6063c1d`));export{r as t};
