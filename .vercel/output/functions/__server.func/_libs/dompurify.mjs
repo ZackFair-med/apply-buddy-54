@@ -42,17 +42,9 @@ var require_purify_cjs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
 		}
 	}
-	var entries = Object.entries;
-	var setPrototypeOf = Object.setPrototypeOf;
-	var isFrozen = Object.isFrozen;
-	var getPrototypeOf = Object.getPrototypeOf;
-	var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-	var freeze = Object.freeze;
-	var seal = Object.seal;
-	var create = Object.create;
-	var _ref = typeof Reflect !== "undefined" && Reflect;
-	var apply = _ref.apply;
-	var construct = _ref.construct;
+	var entries = Object.entries, setPrototypeOf = Object.setPrototypeOf, isFrozen = Object.isFrozen, getPrototypeOf = Object.getPrototypeOf, getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+	var freeze = Object.freeze, seal = Object.seal, create = Object.create;
+	var _ref = typeof Reflect !== "undefined" && Reflect, apply = _ref.apply, construct = _ref.construct;
 	if (!freeze) freeze = function freeze(x) {
 		return x;
 	};
@@ -2166,8 +2158,7 @@ var require_purify_cjs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? _createTrustedHTML(serializedHTML) : serializedHTML;
 		};
 		DOMPurify.setConfig = function() {
-			let cfg = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
-			_parseConfig(cfg);
+			_parseConfig(arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {});
 			SET_CONFIG = true;
 			SET_CONFIG_ALLOWED_TAGS = ALLOWED_TAGS;
 			SET_CONFIG_ALLOWED_ATTR = ALLOWED_ATTR;
@@ -2182,9 +2173,7 @@ var require_purify_cjs = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		};
 		DOMPurify.isValidAttribute = function(tag, attr, value) {
 			if (!CONFIG) _parseConfig({});
-			const lcTag = transformCaseFunc(tag);
-			const lcName = transformCaseFunc(attr);
-			return _isValidAttribute(lcTag, lcName, value);
+			return _isValidAttribute(transformCaseFunc(tag), transformCaseFunc(attr), value);
 		};
 		DOMPurify.addHook = function(entryPoint, hookFunction) {
 			if (typeof hookFunction !== "function") return;

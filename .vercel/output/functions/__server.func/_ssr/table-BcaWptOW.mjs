@@ -1,6 +1,6 @@
 import { o as __toESM } from "../_runtime.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
-import { I as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
+import { P as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
 import { r as cn } from "./button-PwNqyxv_.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/table-BcaWptOW.js
 var import_react = /* @__PURE__ */ __toESM(require_react());

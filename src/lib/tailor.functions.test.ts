@@ -20,10 +20,14 @@ vi.mock("./ai", () => ({ getAIProvider: () => getAIProvider() }));
 const enforceAiLimit = vi.fn();
 const logUsage = vi.fn();
 
-vi.mock("./usage.server", () => ({
-  enforceAiLimit: (...args: unknown[]) => enforceAiLimit(...args),
-  logUsage: (...args: unknown[]) => logUsage(...args),
-}));
+vi.mock("./usage.server", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./usage.server")>();
+  return {
+    ...actual,
+    enforceAiLimit: (...args: unknown[]) => enforceAiLimit(...args),
+    logUsage: (...args: unknown[]) => logUsage(...args),
+  };
+});
 
 const { analyzeMatch, extractKeywords, generateCoverLetter } = await import("./tailor.functions");
 

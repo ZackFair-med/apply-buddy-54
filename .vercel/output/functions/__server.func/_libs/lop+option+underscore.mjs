@@ -4,21 +4,12 @@ var require_underscore_node_f = /* @__PURE__ */ __commonJSMin(((exports) => {
 	Object.defineProperty(exports, "__esModule", { value: true });
 	var VERSION = "1.13.8";
 	var root = typeof self == "object" && self.self === self && self || typeof global == "object" && global.global === global && global || Function("return this")() || {};
-	var ArrayProto = Array.prototype;
-	var ObjProto = Object.prototype;
+	var ArrayProto = Array.prototype, ObjProto = Object.prototype;
 	var SymbolProto = typeof Symbol !== "undefined" ? Symbol.prototype : null;
-	var push = ArrayProto.push;
-	var slice = ArrayProto.slice;
-	var toString = ObjProto.toString;
-	var hasOwnProperty = ObjProto.hasOwnProperty;
-	var supportsArrayBuffer = typeof ArrayBuffer !== "undefined";
-	var supportsDataView = typeof DataView !== "undefined";
-	var nativeIsArray = Array.isArray;
-	var nativeKeys = Object.keys;
-	var nativeCreate = Object.create;
-	var nativeIsView = supportsArrayBuffer && ArrayBuffer.isView;
-	var _isNaN = isNaN;
-	var _isFinite = isFinite;
+	var push = ArrayProto.push, slice = ArrayProto.slice, toString = ObjProto.toString, hasOwnProperty = ObjProto.hasOwnProperty;
+	var supportsArrayBuffer = typeof ArrayBuffer !== "undefined", supportsDataView = typeof DataView !== "undefined";
+	var nativeIsArray = Array.isArray, nativeKeys = Object.keys, nativeCreate = Object.create, nativeIsView = supportsArrayBuffer && ArrayBuffer.isView;
+	var _isNaN = isNaN, _isFinite = isFinite;
 	var hasEnumBug = !{ toString: null }.propertyIsEnumerable("toString");
 	var nonEnumerableProps = [
 		"valueOf",
@@ -81,8 +72,7 @@ var require_underscore_node_f = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	var isFunction$1 = isFunction;
 	var hasObjectTag = tagTester("Object");
-	var hasDataViewBug = supportsDataView && (!/\[native code\]/.test(String(DataView)) || hasObjectTag(/* @__PURE__ */ new DataView(/* @__PURE__ */ new ArrayBuffer(8))));
-	var isIE11 = typeof Map !== "undefined" && hasObjectTag(/* @__PURE__ */ new Map());
+	var hasDataViewBug = supportsDataView && (!/\[native code\]/.test(String(DataView)) || hasObjectTag(/* @__PURE__ */ new DataView(/* @__PURE__ */ new ArrayBuffer(8)))), isIE11 = typeof Map !== "undefined" && hasObjectTag(/* @__PURE__ */ new Map());
 	var isDataView = tagTester("DataView");
 	function alternateIsDataView(obj) {
 		return obj != null && isFunction$1(obj.getInt8) && isArrayBuffer(obj.buffer);
@@ -314,17 +304,12 @@ var require_underscore_node_f = /* @__PURE__ */ __commonJSMin(((exports) => {
 			return methods !== weakMapMethods || !isFunction$1(obj[forEachName]);
 		};
 	}
-	var forEachName = "forEach";
-	var hasName = "has";
-	var commonInit = ["clear", "delete"];
-	var mapTail = [
+	var forEachName = "forEach", hasName = "has", commonInit = ["clear", "delete"], mapTail = [
 		"get",
 		hasName,
 		"set"
 	];
-	var mapMethods = commonInit.concat(forEachName, mapTail);
-	var weakMapMethods = commonInit.concat(mapTail);
-	var setMethods = ["add"].concat(commonInit, forEachName, hasName);
+	var mapMethods = commonInit.concat(forEachName, mapTail), weakMapMethods = commonInit.concat(mapTail), setMethods = ["add"].concat(commonInit, forEachName, hasName);
 	var isMap = isIE11 ? ie11fingerprint(mapMethods) : tagTester("Map");
 	var isWeakMap = isIE11 ? ie11fingerprint(weakMapMethods) : tagTester("WeakMap");
 	var isSet = isIE11 ? ie11fingerprint(setMethods) : tagTester("Set");

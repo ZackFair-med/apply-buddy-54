@@ -22,6 +22,10 @@ export function reactStartMock() {
     let validator: Validator | undefined;
     const builder = {
       middleware: () => builder,
+      validator(fn: Validator) {
+        validator = fn;
+        return builder;
+      },
       inputValidator(fn: Validator) {
         validator = fn;
         return builder;

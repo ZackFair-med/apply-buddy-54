@@ -56,9 +56,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 	*    kim3er, mfo, alnorth, Flamenco
 	*/
 	Object.defineProperty(exports, "__esModule", { value: !0 });
-	var t = require_node();
-	var e = (init_lib_esm(), __toCommonJS(lib_esm_exports));
-	var r = function() {
+	var t = require_node(), e = (init_lib_esm(), __toCommonJS(lib_esm_exports)), r = function() {
 		return "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof self ? self : this;
 	}();
 	/**
@@ -259,8 +257,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			return 1 == t.length && (t = "0" + t), 1 == e.length && (e = "0" + e), 1 == r.length && (r = "0" + r), "#" + t + e + r;
 		};
 	}
-	var i = r.atob.bind(r);
-	var a = r.btoa.bind(r);
+	var i = r.atob.bind(r), a = r.btoa.bind(r);
 	function o() {
 		r.console && "function" == typeof r.console.log && r.console.log.apply(r.console, arguments);
 	}
@@ -2418,34 +2415,26 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 		for (e in t) t.hasOwnProperty(e) && r.indexOf(e) < 0 && n--;
 		return 0 === n;
 	}, C.API = { events: [] }, C.version = "4.2.1";
-	var j = C.API;
-	var O = 1;
-	var B = function(t) {
+	var j = C.API, O = 1, B = function(t) {
 		return t.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
-	};
-	var q = function(t) {
+	}, q = function(t) {
 		return t.replace(/\\\\/g, "\\").replace(/\\\(/g, "(").replace(/\\\)/g, ")");
-	};
-	var M = function(t) {
+	}, M = function(t) {
 		return t.toString().replace(/#/g, "#23").replace(/[\s\n\r()<>[\]{}\/%]/g, (t) => {
 			const e = t.charCodeAt(0).toString(16).toUpperCase();
 			return "#" + (1 === e.length ? "0" + e : e);
 		});
-	};
-	var E = function(t) {
+	}, E = function(t) {
 		return t.toFixed(2);
-	};
-	var R = function(t) {
+	}, R = function(t) {
 		return t.toFixed(5);
 	};
 	j.__acroform__ = {};
 	var D = function(t, e) {
 		t.prototype = Object.create(e.prototype), t.prototype.constructor = t;
-	};
-	var T = function(t) {
+	}, T = function(t) {
 		return t * O;
-	};
-	var z = function(t) {
+	}, z = function(t) {
 		var e = new nt(), r = vt.internal.getHeight(t) || 0, n = vt.internal.getWidth(t) || 0;
 		return e.BBox = [
 			0,
@@ -2453,32 +2442,25 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			Number(E(n)),
 			Number(E(r))
 		], e;
-	};
-	var U = j.__acroform__.setBit = function(t, e) {
+	}, U = j.__acroform__.setBit = function(t, e) {
 		if (t = t || 0, e = e || 0, isNaN(t) || isNaN(e)) throw new Error("Invalid arguments passed to jsPDF.API.__acroform__.setBit");
 		return t | 1 << e;
-	};
-	var H = j.__acroform__.clearBit = function(t, e) {
+	}, H = j.__acroform__.clearBit = function(t, e) {
 		if (t = t || 0, e = e || 0, isNaN(t) || isNaN(e)) throw new Error("Invalid arguments passed to jsPDF.API.__acroform__.clearBit");
 		return t & ~(1 << e);
-	};
-	var W = j.__acroform__.getBit = function(t, e) {
+	}, W = j.__acroform__.getBit = function(t, e) {
 		if (isNaN(t) || isNaN(e)) throw new Error("Invalid arguments passed to jsPDF.API.__acroform__.getBit");
 		return t & 1 << e ? 1 : 0;
-	};
-	var V = j.__acroform__.getBitForPdf = function(t, e) {
+	}, V = j.__acroform__.getBitForPdf = function(t, e) {
 		if (isNaN(t) || isNaN(e)) throw new Error("Invalid arguments passed to jsPDF.API.__acroform__.getBitForPdf");
 		return W(t, e - 1);
-	};
-	var G = j.__acroform__.setBitForPdf = function(t, e) {
+	}, G = j.__acroform__.setBitForPdf = function(t, e) {
 		if (isNaN(t) || isNaN(e)) throw new Error("Invalid arguments passed to jsPDF.API.__acroform__.setBitForPdf");
 		return U(t, e - 1);
-	};
-	var Y = j.__acroform__.clearBitForPdf = function(t, e) {
+	}, Y = j.__acroform__.clearBitForPdf = function(t, e) {
 		if (isNaN(t) || isNaN(e)) throw new Error("Invalid arguments passed to jsPDF.API.__acroform__.clearBitForPdf");
 		return H(t, e - 1);
-	};
-	var J = j.__acroform__.calculateCoordinates = function(t, e) {
+	}, J = j.__acroform__.calculateCoordinates = function(t, e) {
 		var r = e.internal.getHorizontalCoordinate, n = e.internal.getVerticalCoordinate, i = t[0], a = t[1], o = t[2], s = t[3], c = {};
 		return c.lowerLeft_X = r(i) || 0, c.lowerLeft_Y = n(a + s) || 0, c.upperRight_X = r(i + o) || 0, c.upperRight_Y = n(a) || 0, [
 			Number(E(c.lowerLeft_X)),
@@ -2486,8 +2468,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			Number(E(c.upperRight_X)),
 			Number(E(c.upperRight_Y))
 		];
-	};
-	var X = function(t) {
+	}, X = function(t) {
 		if (t.appearanceStreamContent) return t.appearanceStreamContent;
 		if (t.V || t.DV) {
 			var e = [], n = K(t, t._V || t.DV), i = t.scope.internal.getFont(t.fontName, t.fontStyle).id;
@@ -2495,8 +2476,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			var a = z(t);
 			return a.scope = t.scope, a.stream = e.join("\n"), a;
 		}
-	};
-	var K = function(t, e) {
+	}, K = function(t, e) {
 		var r = 0 === t.fontSize ? t.maxFontSize : t.fontSize, n = {
 			text: "",
 			fontSize: ""
@@ -2569,8 +2549,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			break;
 		}
 		return n.text = e, n.fontSize = a, n;
-	};
-	var $ = function(t, e, r) {
+	}, $ = function(t, e, r) {
 		var n = e.scope.internal.getFont(e.fontName, e.fontStyle), i = e.scope.getStringUnitWidth(t, {
 			font: n,
 			fontSize: parseFloat(r),
@@ -2584,16 +2563,14 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			}) * parseFloat(r) * 1.5,
 			width: i
 		};
-	};
-	var Z = {
+	}, Z = {
 		fields: [],
 		xForms: [],
 		acroFormDictionaryRoot: null,
 		printedOut: !1,
 		internal: null,
 		isInitialized: !1
-	};
-	var Q = function(t, e) {
+	}, Q = function(t, e) {
 		var r = {
 			type: "reference",
 			object: t
@@ -2601,8 +2578,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 		void 0 === e.internal.getPageInfo(t.page).pageContext.annotations.find(function(t) {
 			return t.type === r.type && t.object === r.object;
 		}) && e.internal.getPageInfo(t.page).pageContext.annotations.push(r);
-	};
-	var tt = j.__acroform__.arrayToPdfArray = function(t, e, r) {
+	}, tt = j.__acroform__.arrayToPdfArray = function(t, e, r) {
 		var n = function(t) {
 			return t;
 		};
@@ -2618,14 +2594,12 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			return i + "]";
 		}
 		throw new Error("Invalid argument passed to jsPDF.__acroform__.arrayToPdfArray");
-	};
-	var et = function(t, e, r) {
+	}, et = function(t, e, r) {
 		var n = function(t) {
 			return t;
 		};
 		return void 0 !== e && r && (n = r.internal.getEncryptor(e)), (t = t || "").toString(), "(" + B(n(t)) + ")";
-	};
-	var rt = function() {
+	}, rt = function() {
 		this._objId = void 0, this._scope = void 0, Object.defineProperty(this, "objId", {
 			get: function() {
 				if (void 0 === this._objId) {
@@ -3757,6 +3731,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 		}, {});
 	}
 	(function(t) {
+		var e = "addImage_";
 		t.__addimage__ = {};
 		var r = "UNKNOWN", n = {
 			PNG: [[
@@ -3955,18 +3930,18 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 				}), e("endobj");
 			}
 		}, s = function() {
-			var t = this.internal.collections["addImage_images"];
+			var t = this.internal.collections[e + "images"];
 			for (var r in t) o.call(this, t[r]);
 		}, c = function() {
-			var t, r = this.internal.collections["addImage_images"], n = this.internal.write;
+			var t, r = this.internal.collections[e + "images"], n = this.internal.write;
 			for (var i in r) n("/I" + (t = r[i]).index, t.objectId, "0", "R");
 		}, u = function() {
-			this.internal.collections["addImage_images"] || (this.internal.collections["addImage_images"] = {}, this.internal.events.subscribe("putResources", s), this.internal.events.subscribe("putXobjectDict", c));
+			this.internal.collections[e + "images"] || (this.internal.collections[e + "images"] = {}, this.internal.events.subscribe("putResources", s), this.internal.events.subscribe("putXobjectDict", c));
 		}, l = function() {
-			var t = this.internal.collections["addImage_images"];
+			var t = this.internal.collections[e + "images"];
 			return u.call(this), t;
 		}, h = function() {
-			return Object.keys(this.internal.collections["addImage_images"]).length;
+			return Object.keys(this.internal.collections[e + "images"]).length;
 		}, f = function(e) {
 			return "function" == typeof t["process" + e.toUpperCase()];
 		}, d = function(t) {
@@ -3993,7 +3968,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 				return i(e.toDataURL(o, 1).split("base64,").pop());
 			}
 		}, g = function(t) {
-			var r = this.internal.collections["addImage_images"];
+			var r = this.internal.collections[e + "images"];
 			if (r) {
 				for (var n in r) if (t === r[n].alias) return r[n];
 			}
@@ -4987,8 +4962,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			"oblique",
 			"italic"
 		]
-	};
-	var Lt = [
+	}, Lt = [
 		"ultra-condensed",
 		"extra-condensed",
 		"condensed",
@@ -4998,9 +4972,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 		"expanded",
 		"extra-expanded",
 		"ultra-expanded"
-	];
-	var xt = wt(Lt);
-	var At = [
+	], xt = wt(Lt), At = [
 		100,
 		200,
 		300,
@@ -5010,8 +4982,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 		700,
 		800,
 		900
-	];
-	var St = wt(At);
+	], St = wt(At);
 	function _t(t) {
 		var e = t.family.replace(/"|'/g, "").toLowerCase(), r = function(t) {
 			return Nt[t = t || "normal"] ? t : "normal";
@@ -5049,8 +5020,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 		cursive: "times",
 		fantasy: "times",
 		serif: "times"
-	};
-	var Ft = {
+	}, Ft = {
 		caption: "times",
 		icon: "times",
 		menu: "times",
@@ -5080,12 +5050,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 		var e = t.match(/^(-[a-z_]|[a-z_])[a-z0-9_-]*/i);
 		return null === e ? null : [e[0], t.substring(e[0].length)];
 	}
-	var Bt;
-	var qt;
-	var Mt;
-	var Et;
-	var Rt;
-	var Dt = ["times"];
+	var Bt, qt, Mt, Et, Rt, Dt = ["times"];
 	function Tt(e, r, n, i, a) {
 		let o = 4, s = Ht;
 		switch (a) {
@@ -5329,7 +5294,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 		};
 	}
 	function Zt(t, e, r, n) {
-		for (var i = t[e++], a = 1 << i, o = a + 1, c = o + 1, u = i + 1, l = (1 << u) - 1, h = 0, f = 0, d = 0, p = t[e++], g = /* @__PURE__ */ new Int32Array(4096), m = null;;) {
+		for (var i = t[e++], a = 1 << i, o = a + 1, c = o + 1, u = i + 1, l = (1 << u) - 1, h = 0, f = 0, d = 0, p = t[e++], g = new Int32Array(4096), m = null;;) {
 			for (; h < 16 && 0 !== p;) f |= t[e++] << h, h += 8, 1 === p ? p = t[e++] : --p;
 			if (h < u) break;
 			var v = f & l;
@@ -17702,8 +17667,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			return e ??= !1, r = e ? this.lineGap : 0, (this.ascender + r - this.decender) / 1e3 * t;
 		}, t;
 	}();
-	var ie;
-	var ae = function() {
+	var ie, ae = function() {
 		function t(t) {
 			this.data = null != t ? t : [], this.pos = 0, this.length = this.data.length;
 		}
@@ -17760,8 +17724,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			for (i = [], r = 0, n = t.length; r < n; r++) e = t[r], i.push(this.writeByte(e));
 			return i;
 		}, t;
-	}();
-	var oe = function() {
+	}(), oe = function() {
 		var t;
 		function e(t) {
 			var e, r, n;
@@ -17782,9 +17745,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			for (n = new ae(t), r = 0, e = 0, i = t.length; e < i; e = e += 4) r += n.readUInt32();
 			return 4294967295 & r;
 		}, e;
-	}();
-	var se = {}.hasOwnProperty;
-	var ce = function(t, e) {
+	}(), se = {}.hasOwnProperty, ce = function(t, e) {
 		for (var r in e) se.call(e, r) && (t[r] = e[r]);
 		function n() {
 			this.constructor = t;
@@ -17810,8 +17771,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			var e;
 			return (e = new ae()).writeInt(this.version), e.writeInt(this.revision), e.writeInt(this.checkSumAdjustment), e.writeInt(this.magicNumber), e.writeShort(this.flags), e.writeShort(this.unitsPerEm), e.writeLongLong(this.created), e.writeLongLong(this.modified), e.writeShort(this.xMin), e.writeShort(this.yMin), e.writeShort(this.xMax), e.writeShort(this.yMax), e.writeShort(this.macStyle), e.writeShort(this.lowestRecPPEM), e.writeShort(this.fontDirectionHint), e.writeShort(t), e.writeShort(this.glyphDataFormat), e.data;
 		}, t;
-	}();
-	var le = function() {
+	}(), le = function() {
 		function t(t, e) {
 			var r, n, i, a, o, s, c, u, l, h, f, d, p, g, m, v, b;
 			switch (this.platformID = t.readUInt16(), this.encodingID = t.readShort(), this.offset = e + t.readInt(), l = t.pos, t.pos = this.offset, this.format = t.readUInt16(), this.length = t.readUInt16(), this.language = t.readUInt16(), this.isUnicode = 3 === this.platformID && 1 === this.encodingID && 4 === this.format || 0 === this.platformID && 4 === this.format, this.codeMap = {}, this.format) {
@@ -17886,8 +17846,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 					};
 			}
 		}, t;
-	}();
-	var he = function() {
+	}(), he = function() {
 		function t() {
 			return t.__super__.constructor.apply(this, arguments);
 		}
@@ -17899,16 +17858,14 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			var r, n;
 			return e ??= "macroman", r = le.encode(t, e), (n = new ae()).writeUInt16(0), n.writeUInt16(1), r.table = n.data.concat(r.subtable), r;
 		}, t;
-	}();
-	var fe = function() {
+	}(), fe = function() {
 		function t() {
 			return t.__super__.constructor.apply(this, arguments);
 		}
 		return ce(t, ie), t.prototype.tag = "hhea", t.prototype.parse = function(t) {
 			return t.pos = this.offset, this.version = t.readInt(), this.ascender = t.readShort(), this.decender = t.readShort(), this.lineGap = t.readShort(), this.advanceWidthMax = t.readShort(), this.minLeftSideBearing = t.readShort(), this.minRightSideBearing = t.readShort(), this.xMaxExtent = t.readShort(), this.caretSlopeRise = t.readShort(), this.caretSlopeRun = t.readShort(), this.caretOffset = t.readShort(), t.pos += 8, this.metricDataFormat = t.readShort(), this.numberOfMetrics = t.readUInt16();
 		}, t;
-	}();
-	var de = function() {
+	}(), de = function() {
 		function t() {
 			return t.__super__.constructor.apply(this, arguments);
 		}
@@ -17927,8 +17884,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 				return r;
 			}(), this.version > 1)) return this.xHeight = t.readShort(), this.capHeight = t.readShort(), this.defaultChar = t.readShort(), this.breakChar = t.readShort(), this.maxContext = t.readShort();
 		}, t;
-	}();
-	var pe = function() {
+	}(), pe = function() {
 		function t() {
 			return t.__super__.constructor.apply(this, arguments);
 		}
@@ -17950,11 +17906,9 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 				}.call(this);
 			}
 		}, t;
-	}();
-	var ge = function(t, e) {
+	}(), ge = function(t, e) {
 		this.raw = t, this.length = t.length, this.platformID = e.platformID, this.encodingID = e.encodingID, this.languageID = e.languageID;
-	};
-	var me = function() {
+	}, me = function() {
 		function t() {
 			return t.__super__.constructor.apply(this, arguments);
 		}
@@ -17977,16 +17931,14 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			}
 			return this.trademark = s[7], this.manufacturer = s[8], this.designer = s[9], this.description = s[10], this.vendorUrl = s[11], this.designerUrl = s[12], this.license = s[13], this.licenseUrl = s[14], this.preferredFamily = s[15], this.preferredSubfamily = s[17], this.compatibleFull = s[18], this.sampleText = s[19];
 		}, t;
-	}();
-	var ve = function() {
+	}(), ve = function() {
 		function t() {
 			return t.__super__.constructor.apply(this, arguments);
 		}
 		return ce(t, ie), t.prototype.tag = "maxp", t.prototype.parse = function(t) {
 			return t.pos = this.offset, this.version = t.readInt(), this.numGlyphs = t.readUInt16(), this.maxPoints = t.readUInt16(), this.maxContours = t.readUInt16(), this.maxCompositePoints = t.readUInt16(), this.maxComponentContours = t.readUInt16(), this.maxZones = t.readUInt16(), this.maxTwilightPoints = t.readUInt16(), this.maxStorage = t.readUInt16(), this.maxFunctionDefs = t.readUInt16(), this.maxInstructionDefs = t.readUInt16(), this.maxStackElements = t.readUInt16(), this.maxSizeOfInstructions = t.readUInt16(), this.maxComponentElements = t.readUInt16(), this.maxComponentDepth = t.readUInt16();
 		}, t;
-	}();
-	var be = function() {
+	}(), be = function() {
 		function t() {
 			return t.__super__.constructor.apply(this, arguments);
 		}
@@ -18012,9 +17964,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 				lsb: this.leftSideBearings[t - this.metrics.length]
 			};
 		}, t;
-	}();
-	var ye = [].slice;
-	var we = function() {
+	}(), ye = [].slice, we = function() {
 		function t() {
 			return t.__super__.constructor.apply(this, arguments);
 		}
@@ -18031,16 +17981,14 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 				offsets: i
 			};
 		}, t;
-	}();
-	var Ne = function() {
+	}(), Ne = function() {
 		function t(t, e, r, n, i, a) {
 			this.raw = t, this.numberOfContours = e, this.xMin = r, this.yMin = n, this.xMax = i, this.yMax = a, this.compound = !1;
 		}
 		return t.prototype.encode = function() {
 			return this.raw.data;
 		}, t;
-	}();
-	var Le = function() {
+	}(), Le = function() {
 		function t(t, e, r, n, i) {
 			var a, o;
 			for (this.raw = t, this.xMin = e, this.yMin = r, this.xMax = n, this.yMax = i, this.compound = !0, this.glyphIDs = [], this.glyphOffsets = [], a = this.raw; o = a.readShort(), this.glyphOffsets.push(a.pos), this.glyphIDs.push(a.readUInt16()), 32 & o;) a.pos += 1 & o ? 4 : 2, 128 & o ? a.pos += 8 : 64 & o ? a.pos += 4 : 8 & o && (a.pos += 2);
@@ -18050,8 +17998,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			for (e = new ae(ye.call(this.raw.data)), t = 0, r = this.glyphIDs.length; t < r; ++t) e.pos = this.glyphOffsets[t];
 			return e.data;
 		}, t;
-	}();
-	var xe = function() {
+	}(), xe = function() {
 		function t() {
 			return t.__super__.constructor.apply(this, arguments);
 		}
@@ -18079,8 +18026,7 @@ var require_jspdf_node_min = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 			for (var c = new Array(4 * r.length), u = 0; u < r.length; ++u) c[4 * u + 3] = 255 & r[u], c[4 * u + 2] = (65280 & r[u]) >> 8, c[4 * u + 1] = (16711680 & r[u]) >> 16, c[4 * u] = (4278190080 & r[u]) >> 24;
 			return c;
 		}, t;
-	}();
-	var Ae = function() {
+	}(), Ae = function() {
 		function t(t) {
 			this.font = t, this.subset = {}, this.unicodes = {}, this.next = 33;
 		}

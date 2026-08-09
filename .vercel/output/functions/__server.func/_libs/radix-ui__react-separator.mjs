@@ -1,17 +1,14 @@
 import { o as __toESM } from "../_runtime.mjs";
 import { u as require_react } from "./@floating-ui/react-dom+[...].mjs";
-import { A as Primitive, I as require_jsx_runtime } from "./@radix-ui/react-alert-dialog+[...].mjs";
+import { P as require_jsx_runtime } from "./@radix-ui/react-alert-dialog+[...].mjs";
+import { n as Primitive } from "./radix-ui__react-primitive.mjs";
 //#region node_modules/@radix-ui/react-separator/dist/index.mjs
 var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
 var import_jsx_runtime = require_jsx_runtime();
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", {
-	value,
-	configurable: true
-});
+var NAME = "Separator";
 var DEFAULT_ORIENTATION = "horizontal";
 var ORIENTATIONS = ["horizontal", "vertical"];
-var Separator = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name(function Separator2(props, forwardedRef) {
+var Separator = import_react.forwardRef((props, forwardedRef) => {
 	const { decorative, orientation: orientationProp = DEFAULT_ORIENTATION, ...domProps } = props;
 	const orientation = isValidOrientation(orientationProp) ? orientationProp : DEFAULT_ORIENTATION;
 	const semanticProps = decorative ? { role: "none" } : {
@@ -24,11 +21,11 @@ var Separator = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name(f
 		...domProps,
 		ref: forwardedRef
 	});
-}, "Separator"));
+});
+Separator.displayName = NAME;
 function isValidOrientation(orientation) {
 	return ORIENTATIONS.includes(orientation);
 }
-__name(isValidOrientation, "isValidOrientation");
 var Root = Separator;
 //#endregion
 export { Root as t };

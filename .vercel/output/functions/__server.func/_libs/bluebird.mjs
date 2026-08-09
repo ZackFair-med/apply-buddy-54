@@ -614,8 +614,7 @@ var require_errors = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		inherits(SubError, Error);
 		return SubError;
 	}
-	var _TypeError;
-	var _RangeError;
+	var _TypeError, _RangeError;
 	var Warning = subError("Warning", "warning");
 	var CancellationError = subError("CancellationError", "cancellation error");
 	var TimeoutError = subError("TimeoutError", "timeout error");

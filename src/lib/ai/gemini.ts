@@ -159,8 +159,26 @@ ${cvPreview}`;
 
 
     async analyzeMatch(input) {
-      const system = `Score CV vs job description. Return STRICT JSON:
-{"matchScore": 0-100, "strengths": ["bullet1", "bullet2"], "weaknesses": ["bullet1", "bullet2"]}`;
+      const system = `Score candidate CV vs job description and identify actionable gaps.
+Return STRICT JSON only:
+{
+  "matchScore": <0-100 integer>,
+  "strengths": ["bullet1", "bullet2"],
+  "gaps": [
+    {
+      "issue": "specific missing requirement or weakness",
+      "severity": "critical | important | minor",
+      "recommendation": "practical action candidate can take without lying"
+    }
+  ]
+}
+
+Rules:
+- Base every gap strictly on the JD and CV text. Do not invent qualifications.
+- "critical": only mandatory licenses, certifications, legally required qualifications, or explicitly required experience.
+- "important": meaningful missing skills or requirements that impact fit.
+- "minor": lower-impact preferences or cosmetic improvements.
+- Recommendations must be honest and practical (never recommend falsely claiming qualifications). Max 5 strengths, max 5 gaps.`;
       const text = await callGateway({
         system,
         user: `${contextBlock(input)}\n\nJSON only.`,
@@ -168,27 +186,80 @@ ${cvPreview}`;
         json: true,
       });
       const p = parseJson<Partial<MatchAnalysis>>(text);
+      const rawGaps = Array.isArray(p.gaps) ? p.gaps : [];
+      const gaps = rawGaps
+        .filter((g) => g && typeof g.issue === "string" && g.issue.trim())
+        .slice(0, 5)
+        .map((g) => {
+          const sev = String(g.severity ?? "").toLowerCase();
+          const severity: "critical" | "important" | "minor" =
+            sev === "critical" ? "critical" : sev === "minor" ? "minor" : "important";
+          return {
+            issue: String(g.issue).trim(),
+            severity,
+            recommendation: String(g.recommendation ?? "").trim(),
+          };
+        });
+
+      const rawWeaknesses = Array.isArray(p.weaknesses) ? p.weaknesses : [];
+      const weaknesses = rawWeaknesses.map((w) => String(w).trim()).filter(Boolean).slice(0, 5);
+
+      if (gaps.length === 0 && weaknesses.length > 0) {
+        weaknesses.forEach((w) => {
+          gaps.push({
+            issue: w,
+            severity: "important",
+            recommendation: "Address or highlight relevant experience for this requirement.",
+          });
+        });
+      }
+
       return {
         matchScore: Math.max(0, Math.min(100, Number(p.matchScore ?? 0))),
         strengths: (Array.isArray(p.strengths) ? p.strengths : []).slice(0, 5),
-        weaknesses: (Array.isArray(p.weaknesses) ? p.weaknesses : []).slice(0, 5),
+        weaknesses,
+        gaps,
       };
     },
 
     async extractKeywords(input) {
-      const system = `Extract skills from JD vs CV. Return STRICT JSON:
-{"matchedKeywords": ["skill1", "skill2"], "missingKeywords": ["skill1", "skill2"]}
-Max 12 each. Focus: tools, languages, frameworks, certifications.`;
+      const system = `Extract skills from JD vs CV and suggest bullet rewrites to naturally integrate missing skills into candidate CV bullets.
+Return STRICT JSON only:
+{
+  "matchedKeywords": ["skill1", "skill2"],
+  "missingKeywords": ["skill1", "skill2"],
+  "suggestedRewrites": [
+    {
+      "original": "exact line from CV",
+      "targetKeywords": ["missing skill 1"],
+      "suggested": "rewritten bullet integrating missing skills"
+    }
+  ]
+}
+Max 12 keywords each, up to 4 suggestedRewrites. Focus: tools, languages, frameworks, certifications, experience.`;
       const text = await callGateway({
         system,
         user: `${contextBlock(input)}\n\nJSON only.`,
-        maxTokens: 384,
+        maxTokens: 800,
         json: true,
       });
       const p = parseJson<Partial<KeywordAnalysis>>(text);
+      const rawRewrites = Array.isArray(p.suggestedRewrites) ? p.suggestedRewrites : [];
+      const suggestedRewrites = rawRewrites
+        .filter((r) => r && typeof r.original === "string" && typeof r.suggested === "string")
+        .slice(0, 4)
+        .map((r) => ({
+          original: String(r.original).trim(),
+          suggested: String(r.suggested).trim(),
+          targetKeywords: Array.isArray(r.targetKeywords)
+            ? r.targetKeywords.map(String).slice(0, 5)
+            : [],
+        }));
+
       return {
         matchedKeywords: (Array.isArray(p.matchedKeywords) ? p.matchedKeywords : []).slice(0, 12),
         missingKeywords: (Array.isArray(p.missingKeywords) ? p.missingKeywords : []).slice(0, 12),
+        suggestedRewrites,
       };
     },
 

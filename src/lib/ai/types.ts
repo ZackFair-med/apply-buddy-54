@@ -5,15 +5,31 @@ export interface TailorInput {
   company?: string;
 }
 
+export type GapSeverity = "critical" | "important" | "minor";
+
+export interface MatchGap {
+  issue: string;
+  severity: GapSeverity;
+  recommendation: string;
+}
+
 export interface MatchAnalysis {
   matchScore: number;
   strengths: string[];
-  weaknesses: string[];
+  weaknesses?: string[];
+  gaps?: MatchGap[];
+}
+
+export interface BulletRewrite {
+  original: string;
+  suggested: string;
+  targetKeywords: string[];
 }
 
 export interface KeywordAnalysis {
   matchedKeywords: string[];
   missingKeywords: string[];
+  suggestedRewrites?: BulletRewrite[];
 }
 
 export type CoverLetterTone = "formal" | "warm" | "confident";

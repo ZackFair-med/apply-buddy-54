@@ -1,4 +1,4 @@
-import { I as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
+import { P as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
 import { t as Button } from "./button-PwNqyxv_.mjs";
 import { n as CardContent, t as Card } from "./card-C5Nmk_bj.mjs";
 import { o as Sparkles, t as X } from "../_libs/lucide-react.mjs";

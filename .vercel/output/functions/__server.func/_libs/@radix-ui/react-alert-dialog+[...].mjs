@@ -13,8 +13,7 @@ import { __assign, __rest, __spreadArray } from "tslib";
 * LICENSE file in the root directory of this source tree.
 */
 var require_react_jsx_runtime_production = /* @__PURE__ */ __commonJSMin(((exports) => {
-	var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element");
-	var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
+	var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
 	function jsxProd(type, config, maybeKey) {
 		var key = null;
 		void 0 !== maybeKey && (key = "" + maybeKey);
@@ -45,7 +44,7 @@ var require_jsx_runtime = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 //#region node_modules/@radix-ui/react-compose-refs/dist/index.mjs
 var import_jsx_runtime = require_jsx_runtime();
 var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
-function setRef$1(ref, value) {
+function setRef(ref, value) {
 	if (typeof ref === "function") return ref(value);
 	else if (ref !== null && ref !== void 0) ref.current = value;
 }
@@ -53,7 +52,7 @@ function composeRefs(...refs) {
 	return (node) => {
 		let hasCleanup = false;
 		const cleanups = refs.map((ref) => {
-			const cleanup = setRef$1(ref, node);
+			const cleanup = setRef(ref, node);
 			if (!hasCleanup && typeof cleanup == "function") hasCleanup = true;
 			return cleanup;
 		});
@@ -61,7 +60,7 @@ function composeRefs(...refs) {
 			for (let i = 0; i < cleanups.length; i++) {
 				const cleanup = cleanups[i];
 				if (typeof cleanup == "function") cleanup();
-				else setRef$1(refs[i], null);
+				else setRef(refs[i], null);
 			}
 		};
 	};
@@ -70,154 +69,30 @@ function useComposedRefs(...refs) {
 	return import_react.useCallback(composeRefs(...refs), refs);
 }
 //#endregion
-//#region node_modules/@radix-ui/react-slot/dist/index.mjs
-var import_react_dom = /* @__PURE__ */ __toESM(require_react_dom(), 1);
-// @__NO_SIDE_EFFECTS__
-function createSlot(ownerName) {
-	const Slot2 = import_react.forwardRef((props, forwardedRef) => {
-		let { children, ...slotProps } = props;
-		let slottableElement = null;
-		let hasSlottable = false;
-		const newChildren = [];
-		if (isLazyComponent(children) && typeof use === "function") children = use(children._payload);
-		import_react.Children.forEach(children, (maybeSlottable) => {
-			if (isSlottable(maybeSlottable)) {
-				hasSlottable = true;
-				const slottable = maybeSlottable;
-				let child = "child" in slottable.props ? slottable.props.child : slottable.props.children;
-				if (isLazyComponent(child) && typeof use === "function") child = use(child._payload);
-				slottableElement = getSlottableElementFromSlottable(slottable, child);
-				newChildren.push(slottableElement?.props?.children);
-			} else newChildren.push(maybeSlottable);
-		});
-		if (slottableElement) slottableElement = import_react.cloneElement(slottableElement, void 0, newChildren);
-		else if (!hasSlottable && import_react.Children.count(children) === 1 && import_react.isValidElement(children)) slottableElement = children;
-		const slottableElementRef = slottableElement ? getElementRef$1(slottableElement) : void 0;
-		const composedRef = useComposedRefs(forwardedRef, slottableElementRef);
-		if (!slottableElement) {
-			if (children || children === 0) throw new Error(hasSlottable ? createSlottableError(ownerName) : createSlotError(ownerName));
-			return children;
-		}
-		const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
-		if (slottableElement.type !== import_react.Fragment) mergedProps.ref = forwardedRef ? composedRef : slottableElementRef;
-		return import_react.cloneElement(slottableElement, mergedProps);
-	});
-	Slot2.displayName = `${ownerName}.Slot`;
-	return Slot2;
-}
-var Slot$1 = /* @__PURE__ */ createSlot("Slot");
-var SLOTTABLE_IDENTIFIER = Symbol.for("radix.slottable");
-// @__NO_SIDE_EFFECTS__
-function createSlottable(ownerName) {
-	const Slottable2 = (props) => "child" in props ? props.children(props.child) : props.children;
-	Slottable2.displayName = `${ownerName}.Slottable`;
-	Slottable2.__radixId = SLOTTABLE_IDENTIFIER;
-	return Slottable2;
-}
-var getSlottableElementFromSlottable = (slottable, child) => {
-	if ("child" in slottable.props) {
-		const child2 = slottable.props.child;
-		if (!import_react.isValidElement(child2)) return null;
-		return import_react.cloneElement(child2, void 0, slottable.props.children(child2.props.children));
-	}
-	return import_react.isValidElement(child) ? child : null;
-};
-function mergeProps(slotProps, childProps) {
-	const overrideProps = { ...childProps };
-	for (const propName in childProps) {
-		const slotPropValue = slotProps[propName];
-		const childPropValue = childProps[propName];
-		if (/^on[A-Z]/.test(propName)) {
-			if (slotPropValue && childPropValue) overrideProps[propName] = (...args) => {
-				const result = childPropValue(...args);
-				slotPropValue(...args);
-				return result;
-			};
-			else if (slotPropValue) overrideProps[propName] = slotPropValue;
-		} else if (propName === "style") overrideProps[propName] = {
-			...slotPropValue,
-			...childPropValue
-		};
-		else if (propName === "className") overrideProps[propName] = [slotPropValue, childPropValue].filter(Boolean).join(" ");
-	}
-	return {
-		...slotProps,
-		...overrideProps
-	};
-}
-function getElementRef$1(element) {
-	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
-	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
-	if (mayWarn) return element.ref;
-	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
-	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
-	if (mayWarn) return element.props.ref;
-	return element.props.ref || element.ref;
-}
-function isSlottable(child) {
-	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER;
-}
-var REACT_LAZY_TYPE = Symbol.for("react.lazy");
-function isLazyComponent(element) {
-	return element != null && typeof element === "object" && "$$typeof" in element && element.$$typeof === REACT_LAZY_TYPE && "_payload" in element && isPromiseLike(element._payload);
-}
-function isPromiseLike(value) {
-	return typeof value === "object" && value !== null && "then" in value;
-}
-var createSlotError = (ownerName) => {
-	return `${ownerName} failed to slot onto its children. Expected a single React element child or \`Slottable\`.`;
-};
-var createSlottableError = (ownerName) => {
-	return `${ownerName} failed to slot onto its \`Slottable\`. Expected \`Slottable\` to receive a single React element child.`;
-};
-var use = import_react[" use ".trim().toString()];
-//#endregion
-//#region node_modules/@radix-ui/react-primitive/dist/index.mjs
-var Primitive = [
-	"a",
-	"button",
-	"div",
-	"form",
-	"h2",
-	"h3",
-	"img",
-	"input",
-	"label",
-	"li",
-	"nav",
-	"ol",
-	"p",
-	"select",
-	"span",
-	"svg",
-	"ul"
-].reduce((primitive, node) => {
-	const Slot = /* @__PURE__ */ createSlot(`Primitive.${node}`);
-	const Node = import_react.forwardRef((props, forwardedRef) => {
-		const { asChild, ...primitiveProps } = props;
-		const Comp = asChild ? Slot : node;
-		if (typeof window !== "undefined") window[Symbol.for("radix-ui")] = true;
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Comp, {
-			...primitiveProps,
-			ref: forwardedRef
-		});
-	});
-	Node.displayName = `Primitive.${node}`;
-	return {
-		...primitive,
-		[node]: Node
-	};
-}, {});
-function dispatchDiscreteCustomEvent(target, event) {
-	if (target) import_react_dom.flushSync(() => target.dispatchEvent(event));
-}
-//#endregion
 //#region node_modules/@radix-ui/react-context/dist/index.mjs
+function createContext2(rootComponentName, defaultContext) {
+	const Context = import_react.createContext(defaultContext);
+	const Provider = (props) => {
+		const { children, ...context } = props;
+		const value = import_react.useMemo(() => context, Object.values(context));
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Context.Provider, {
+			value,
+			children
+		});
+	};
+	Provider.displayName = rootComponentName + "Provider";
+	function useContext2(consumerName) {
+		const context = import_react.useContext(Context);
+		if (context) return context;
+		if (defaultContext !== void 0) return defaultContext;
+		throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
+	}
+	return [Provider, useContext2];
+}
 function createContextScope(scopeName, createContextScopeDeps = []) {
 	let defaultContexts = [];
 	function createContext3(rootComponentName, defaultContext) {
 		const BaseContext = import_react.createContext(defaultContext);
-		BaseContext.displayName = rootComponentName + "Context";
 		const index = defaultContexts.length;
 		defaultContexts = [...defaultContexts, defaultContext];
 		const Provider = (props) => {
@@ -230,13 +105,11 @@ function createContextScope(scopeName, createContextScopeDeps = []) {
 			});
 		};
 		Provider.displayName = rootComponentName + "Provider";
-		function useContext2(consumerName, scope, options = {}) {
-			const { optional = false } = options;
+		function useContext2(consumerName, scope) {
 			const Context = scope?.[scopeName]?.[index] || BaseContext;
 			const context = import_react.useContext(Context);
 			if (context) return context;
 			if (defaultContext !== void 0) return defaultContext;
-			if (optional) return void 0;
 			throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
 		}
 		return [Provider, useContext2];
@@ -293,37 +166,24 @@ function useId(deterministicId) {
 	return deterministicId || (id ? `radix-${id}` : "");
 }
 //#endregion
-//#region node_modules/@radix-ui/react-use-effect-event/dist/index.mjs
-var useReactEffectEvent = import_react[" useEffectEvent ".trim().toString()];
-var useReactInsertionEffect = import_react[" useInsertionEffect ".trim().toString()];
-function useEffectEvent(callback) {
-	if (typeof useReactEffectEvent === "function") return useReactEffectEvent(callback);
-	const ref = import_react.useRef(() => {
-		throw new Error("Cannot call an event handler while rendering.");
-	});
-	if (typeof useReactInsertionEffect === "function") useReactInsertionEffect(() => {
-		ref.current = callback;
-	});
-	else useLayoutEffect2(() => {
-		ref.current = callback;
-	});
-	return import_react.useMemo(() => ((...args) => ref.current?.(...args)), []);
-}
-//#endregion
 //#region node_modules/@radix-ui/react-use-controllable-state/dist/index.mjs
-var __defProp$6 = Object.defineProperty;
-var __name$6 = (target, value) => __defProp$6(target, "name", {
-	value,
-	configurable: true
-});
 var useInsertionEffect = import_react[" useInsertionEffect ".trim().toString()] || useLayoutEffect2;
-function useControllableState({ prop, defaultProp, onChange = /* @__PURE__ */ __name$6(() => {}, "onChange"), caller }) {
+function useControllableState({ prop, defaultProp, onChange = () => {}, caller }) {
 	const [uncontrolledProp, setUncontrolledProp, onChangeRef] = useUncontrolledState({
 		defaultProp,
 		onChange
 	});
 	const isControlled = prop !== void 0;
-	return [isControlled ? prop : uncontrolledProp, import_react.useCallback((nextValue) => {
+	const value = isControlled ? prop : uncontrolledProp;
+	{
+		const isControlledRef = import_react.useRef(prop !== void 0);
+		import_react.useEffect(() => {
+			const wasControlled = isControlledRef.current;
+			if (wasControlled !== isControlled) console.warn(`${caller} is changing from ${wasControlled ? "controlled" : "uncontrolled"} to ${isControlled ? "controlled" : "uncontrolled"}. Components should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled value for the lifetime of the component.`);
+			isControlledRef.current = isControlled;
+		}, [isControlled, caller]);
+	}
+	return [value, import_react.useCallback((nextValue) => {
 		if (isControlled) {
 			const value2 = isFunction(nextValue) ? nextValue(prop) : nextValue;
 			if (value2 !== prop) onChangeRef.current?.(value2);
@@ -335,7 +195,6 @@ function useControllableState({ prop, defaultProp, onChange = /* @__PURE__ */ __
 		onChangeRef
 	])];
 }
-__name$6(useControllableState, "useControllableState");
 function useUncontrolledState({ defaultProp, onChange }) {
 	const [value, setValue] = import_react.useState(defaultProp);
 	const prevValueRef = import_react.useRef(value);
@@ -355,62 +214,133 @@ function useUncontrolledState({ defaultProp, onChange }) {
 		onChangeRef
 	];
 }
-__name$6(useUncontrolledState, "useUncontrolledState");
 function isFunction(value) {
 	return typeof value === "function";
 }
-__name$6(isFunction, "isFunction");
-var SYNC_STATE = Symbol("RADIX:SYNC_STATE");
-function useControllableStateReducer(reducer, userArgs, initialArg, init) {
-	const { prop: controlledState, defaultProp, onChange: onChangeProp, caller } = userArgs;
-	const isControlled = controlledState !== void 0;
-	const onChange = useEffectEvent(onChangeProp);
-	const args = [{
-		...initialArg,
-		state: defaultProp
-	}];
-	if (init) args.push(init);
-	const [internalState, dispatch] = import_react.useReducer((state2, action) => {
-		if (action.type === SYNC_STATE) return {
-			...state2,
-			state: action.state
-		};
-		const next = reducer(state2, action);
-		if (isControlled && !Object.is(next.state, state2.state)) onChange(next.state);
-		return next;
-	}, ...args);
-	const uncontrolledState = internalState.state;
-	const prevValueRef = import_react.useRef(uncontrolledState);
-	import_react.useEffect(() => {
-		if (prevValueRef.current !== uncontrolledState) {
-			prevValueRef.current = uncontrolledState;
-			if (!isControlled) onChange(uncontrolledState);
+//#endregion
+//#region node_modules/@radix-ui/react-primitive/node_modules/@radix-ui/react-slot/dist/index.mjs
+var import_react_dom = /* @__PURE__ */ __toESM(require_react_dom(), 1);
+// @__NO_SIDE_EFFECTS__
+function createSlot$1(ownerName) {
+	const SlotClone = /* @__PURE__ */ createSlotClone$1(ownerName);
+	const Slot2 = import_react.forwardRef((props, forwardedRef) => {
+		const { children, ...slotProps } = props;
+		const childrenArray = import_react.Children.toArray(children);
+		const slottable = childrenArray.find(isSlottable$1);
+		if (slottable) {
+			const newElement = slottable.props.children;
+			const newChildren = childrenArray.map((child) => {
+				if (child === slottable) {
+					if (import_react.Children.count(newElement) > 1) return import_react.Children.only(null);
+					return import_react.isValidElement(newElement) ? newElement.props.children : null;
+				} else return child;
+			});
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+				...slotProps,
+				ref: forwardedRef,
+				children: import_react.isValidElement(newElement) ? import_react.cloneElement(newElement, void 0, newChildren) : null
+			});
 		}
-	}, [
-		uncontrolledState,
-		prevValueRef,
-		isControlled
-	]);
-	const state = import_react.useMemo(() => {
-		if (controlledState !== void 0) return {
-			...internalState,
-			state: controlledState
-		};
-		return internalState;
-	}, [internalState, controlledState]);
-	import_react.useEffect(() => {
-		if (isControlled && !Object.is(controlledState, internalState.state)) dispatch({
-			type: SYNC_STATE,
-			state: controlledState
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+			...slotProps,
+			ref: forwardedRef,
+			children
 		});
-	}, [
-		controlledState,
-		internalState.state,
-		isControlled
-	]);
-	return [state, dispatch];
+	});
+	Slot2.displayName = `${ownerName}.Slot`;
+	return Slot2;
 }
-__name$6(useControllableStateReducer, "useControllableStateReducer");
+// @__NO_SIDE_EFFECTS__
+function createSlotClone$1(ownerName) {
+	const SlotClone = import_react.forwardRef((props, forwardedRef) => {
+		const { children, ...slotProps } = props;
+		if (import_react.isValidElement(children)) {
+			const childrenRef = getElementRef$2(children);
+			const props2 = mergeProps$1(slotProps, children.props);
+			if (children.type !== import_react.Fragment) props2.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
+			return import_react.cloneElement(children, props2);
+		}
+		return import_react.Children.count(children) > 1 ? import_react.Children.only(null) : null;
+	});
+	SlotClone.displayName = `${ownerName}.SlotClone`;
+	return SlotClone;
+}
+var SLOTTABLE_IDENTIFIER$2 = Symbol("radix.slottable");
+function isSlottable$1(child) {
+	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER$2;
+}
+function mergeProps$1(slotProps, childProps) {
+	const overrideProps = { ...childProps };
+	for (const propName in childProps) {
+		const slotPropValue = slotProps[propName];
+		const childPropValue = childProps[propName];
+		if (/^on[A-Z]/.test(propName)) {
+			if (slotPropValue && childPropValue) overrideProps[propName] = (...args) => {
+				const result = childPropValue(...args);
+				slotPropValue(...args);
+				return result;
+			};
+			else if (slotPropValue) overrideProps[propName] = slotPropValue;
+		} else if (propName === "style") overrideProps[propName] = {
+			...slotPropValue,
+			...childPropValue
+		};
+		else if (propName === "className") overrideProps[propName] = [slotPropValue, childPropValue].filter(Boolean).join(" ");
+	}
+	return {
+		...slotProps,
+		...overrideProps
+	};
+}
+function getElementRef$2(element) {
+	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
+	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.ref;
+	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
+	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.props.ref;
+	return element.props.ref || element.ref;
+}
+//#endregion
+//#region node_modules/@radix-ui/react-primitive/dist/index.mjs
+var Primitive = [
+	"a",
+	"button",
+	"div",
+	"form",
+	"h2",
+	"h3",
+	"img",
+	"input",
+	"label",
+	"li",
+	"nav",
+	"ol",
+	"p",
+	"select",
+	"span",
+	"svg",
+	"ul"
+].reduce((primitive, node) => {
+	const Slot = /* @__PURE__ */ createSlot$1(`Primitive.${node}`);
+	const Node = import_react.forwardRef((props, forwardedRef) => {
+		const { asChild, ...primitiveProps } = props;
+		const Comp = asChild ? Slot : node;
+		if (typeof window !== "undefined") window[Symbol.for("radix-ui")] = true;
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Comp, {
+			...primitiveProps,
+			ref: forwardedRef
+		});
+	});
+	Node.displayName = `Primitive.${node}`;
+	return {
+		...primitive,
+		[node]: Node
+	};
+}, {});
+function dispatchDiscreteCustomEvent(target, event) {
+	if (target) import_react_dom.flushSync(() => target.dispatchEvent(event));
+}
 //#endregion
 //#region node_modules/@radix-ui/react-use-callback-ref/dist/index.mjs
 function useCallbackRef$1(callback) {
@@ -418,15 +348,23 @@ function useCallbackRef$1(callback) {
 	import_react.useEffect(() => {
 		callbackRef.current = callback;
 	});
-	return import_react.useMemo(() => ((...args) => callbackRef.current?.(...args)), []);
+	return import_react.useMemo(() => (...args) => callbackRef.current?.(...args), []);
+}
+//#endregion
+//#region node_modules/@radix-ui/react-use-escape-keydown/dist/index.mjs
+function useEscapeKeydown(onEscapeKeyDownProp, ownerDocument = globalThis?.document) {
+	const onEscapeKeyDown = useCallbackRef$1(onEscapeKeyDownProp);
+	import_react.useEffect(() => {
+		const handleKeyDown = (event) => {
+			if (event.key === "Escape") onEscapeKeyDown(event);
+		};
+		ownerDocument.addEventListener("keydown", handleKeyDown, { capture: true });
+		return () => ownerDocument.removeEventListener("keydown", handleKeyDown, { capture: true });
+	}, [onEscapeKeyDown, ownerDocument]);
 }
 //#endregion
 //#region node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs
-var __defProp$5 = Object.defineProperty;
-var __name$5 = (target, value) => __defProp$5(target, "name", {
-	value,
-	configurable: true
-});
+var DISMISSABLE_LAYER_NAME = "DismissableLayer";
 var CONTEXT_UPDATE = "dismissableLayer.update";
 var POINTER_DOWN_OUTSIDE = "dismissableLayer.pointerDownOutside";
 var FOCUS_OUTSIDE = "dismissableLayer.focusOutside";
@@ -434,64 +372,44 @@ var originalBodyPointerEvents;
 var DismissableLayerContext = import_react.createContext({
 	layers: /* @__PURE__ */ new Set(),
 	layersWithOutsidePointerEventsDisabled: /* @__PURE__ */ new Set(),
-	branches: /* @__PURE__ */ new Set(),
-	dismissableSurfaces: /* @__PURE__ */ new Set()
+	branches: /* @__PURE__ */ new Set()
 });
-var DismissableLayer = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$5(function DismissableLayer2(props, forwardedRef) {
-	const { disableOutsidePointerEvents = false, deferPointerDownOutside = false, onEscapeKeyDown, onPointerDownOutside, onFocusOutside, onInteractOutside, onDismiss, ...layerProps } = props;
+var DismissableLayer = import_react.forwardRef((props, forwardedRef) => {
+	const { disableOutsidePointerEvents = false, onEscapeKeyDown, onPointerDownOutside, onFocusOutside, onInteractOutside, onDismiss, ...layerProps } = props;
 	const context = import_react.useContext(DismissableLayerContext);
 	const [node, setNode] = import_react.useState(null);
 	const ownerDocument = node?.ownerDocument ?? globalThis?.document;
 	const [, force] = import_react.useState({});
-	const composedRefs = useComposedRefs(forwardedRef, setNode);
+	const composedRefs = useComposedRefs(forwardedRef, (node2) => setNode(node2));
 	const layers = Array.from(context.layers);
 	const [highestLayerWithOutsidePointerEventsDisabled] = [...context.layersWithOutsidePointerEventsDisabled].slice(-1);
-	const highestLayerWithOutsidePointerEventsDisabledIndex = highestLayerWithOutsidePointerEventsDisabled ? layers.indexOf(highestLayerWithOutsidePointerEventsDisabled) : -1;
+	const highestLayerWithOutsidePointerEventsDisabledIndex = layers.indexOf(highestLayerWithOutsidePointerEventsDisabled);
 	const index = node ? layers.indexOf(node) : -1;
 	const isBodyPointerEventsDisabled = context.layersWithOutsidePointerEventsDisabled.size > 0;
 	const isPointerEventsEnabled = index >= highestLayerWithOutsidePointerEventsDisabledIndex;
-	const isDeferredPointerDownOutsideRef = import_react.useRef(false);
 	const pointerDownOutside = usePointerDownOutside((event) => {
+		const target = event.target;
+		const isPointerDownOnBranch = [...context.branches].some((branch) => branch.contains(target));
+		if (!isPointerEventsEnabled || isPointerDownOnBranch) return;
 		onPointerDownOutside?.(event);
 		onInteractOutside?.(event);
 		if (!event.defaultPrevented) onDismiss?.();
-	}, {
-		ownerDocument,
-		deferPointerDownOutside,
-		isDeferredPointerDownOutsideRef,
-		dismissableSurfaces: context.dismissableSurfaces,
-		shouldHandlePointerDownOutside: import_react.useCallback((target) => {
-			if (!(target instanceof Node)) return false;
-			const isPointerDownOnBranch = [...context.branches].some((branch) => branch.contains(target));
-			return isPointerEventsEnabled && !isPointerDownOnBranch;
-		}, [context.branches, isPointerEventsEnabled])
-	});
+	}, ownerDocument);
 	const focusOutside = useFocusOutside((event) => {
-		if (deferPointerDownOutside && isDeferredPointerDownOutsideRef.current) return;
 		const target = event.target;
 		if ([...context.branches].some((branch) => branch.contains(target))) return;
 		onFocusOutside?.(event);
 		onInteractOutside?.(event);
 		if (!event.defaultPrevented) onDismiss?.();
 	}, ownerDocument);
-	const isHighestLayer = node ? index === layers.length - 1 : false;
-	const handleKeyDown = useCallbackRef$1((event) => {
-		if (event.key !== "Escape") return;
+	useEscapeKeydown((event) => {
+		if (!(index === context.layers.size - 1)) return;
 		onEscapeKeyDown?.(event);
 		if (!event.defaultPrevented && onDismiss) {
 			event.preventDefault();
 			onDismiss();
 		}
-	});
-	import_react.useEffect(() => {
-		if (!isHighestLayer) return;
-		ownerDocument.addEventListener("keydown", handleKeyDown, { capture: true });
-		return () => ownerDocument.removeEventListener("keydown", handleKeyDown, { capture: true });
-	}, [
-		ownerDocument,
-		isHighestLayer,
-		handleKeyDown
-	]);
+	}, ownerDocument);
 	import_react.useEffect(() => {
 		if (!node) return;
 		if (disableOutsidePointerEvents) {
@@ -504,10 +422,7 @@ var DismissableLayer = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ _
 		context.layers.add(node);
 		dispatchUpdate();
 		return () => {
-			if (disableOutsidePointerEvents) {
-				context.layersWithOutsidePointerEventsDisabled.delete(node);
-				if (context.layersWithOutsidePointerEventsDisabled.size === 0) ownerDocument.body.style.pointerEvents = originalBodyPointerEvents;
-			}
+			if (disableOutsidePointerEvents && context.layersWithOutsidePointerEventsDisabled.size === 1) ownerDocument.body.style.pointerEvents = originalBodyPointerEvents;
 		};
 	}, [
 		node,
@@ -524,7 +439,7 @@ var DismissableLayer = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ _
 		};
 	}, [node, context]);
 	import_react.useEffect(() => {
-		const handleUpdate = /* @__PURE__ */ __name$5(() => force({}), "handleUpdate");
+		const handleUpdate = () => force({});
 		document.addEventListener(CONTEXT_UPDATE, handleUpdate);
 		return () => document.removeEventListener(CONTEXT_UPDATE, handleUpdate);
 	}, []);
@@ -539,95 +454,47 @@ var DismissableLayer = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ _
 		onBlurCapture: composeEventHandlers(props.onBlurCapture, focusOutside.onBlurCapture),
 		onPointerDownCapture: composeEventHandlers(props.onPointerDownCapture, pointerDownOutside.onPointerDownCapture)
 	});
-}, "DismissableLayer"));
-function useDismissableLayerSurface() {
+});
+DismissableLayer.displayName = DISMISSABLE_LAYER_NAME;
+var BRANCH_NAME = "DismissableLayerBranch";
+var DismissableLayerBranch = import_react.forwardRef((props, forwardedRef) => {
 	const context = import_react.useContext(DismissableLayerContext);
-	const [node, setNode] = import_react.useState(null);
+	const ref = import_react.useRef(null);
+	const composedRefs = useComposedRefs(forwardedRef, ref);
 	import_react.useEffect(() => {
-		if (!node) return;
-		context.dismissableSurfaces.add(node);
-		return () => {
-			context.dismissableSurfaces.delete(node);
-		};
-	}, [node, context.dismissableSurfaces]);
-	return setNode;
-}
-__name$5(useDismissableLayerSurface, "useDismissableLayerSurface");
-var IS_TRUE = /* @__PURE__ */ __name$5(() => true, "IS_TRUE");
-function usePointerDownOutside(onPointerDownOutside, args) {
-	const { ownerDocument = globalThis?.document, deferPointerDownOutside = false, isDeferredPointerDownOutsideRef, dismissableSurfaces, shouldHandlePointerDownOutside = IS_TRUE } = args;
+		const node = ref.current;
+		if (node) {
+			context.branches.add(node);
+			return () => {
+				context.branches.delete(node);
+			};
+		}
+	}, [context.branches]);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		...props,
+		ref: composedRefs
+	});
+});
+DismissableLayerBranch.displayName = BRANCH_NAME;
+function usePointerDownOutside(onPointerDownOutside, ownerDocument = globalThis?.document) {
 	const handlePointerDownOutside = useCallbackRef$1(onPointerDownOutside);
 	const isPointerInsideReactTreeRef = import_react.useRef(false);
-	const isPointerDownOutsideRef = import_react.useRef(false);
-	const interceptedOutsideInteractionEventsRef = import_react.useRef(/* @__PURE__ */ new Map());
 	const handleClickRef = import_react.useRef(() => {});
 	import_react.useEffect(() => {
-		function resetOutsideInteraction() {
-			isPointerDownOutsideRef.current = false;
-			isDeferredPointerDownOutsideRef.current = false;
-			interceptedOutsideInteractionEventsRef.current.clear();
-		}
-		__name$5(resetOutsideInteraction, "resetOutsideInteraction");
-		function isOutsideInteractionIntercepted() {
-			return Array.from(interceptedOutsideInteractionEventsRef.current.values()).some(Boolean);
-		}
-		__name$5(isOutsideInteractionIntercepted, "isOutsideInteractionIntercepted");
-		function handleInteractionCapture(event) {
-			if (!isPointerDownOutsideRef.current) return;
-			const target = event.target;
-			if (!(target instanceof Node && [...dismissableSurfaces].some((surface) => surface.contains(target)))) interceptedOutsideInteractionEventsRef.current.set(event.type, true);
-			if (event.type === "click") window.setTimeout(() => {
-				if (isPointerDownOutsideRef.current) handleClickRef.current();
-			}, 0);
-		}
-		__name$5(handleInteractionCapture, "handleInteractionCapture");
-		function handleInteractionBubble(event) {
-			if (isPointerDownOutsideRef.current) interceptedOutsideInteractionEventsRef.current.set(event.type, false);
-		}
-		__name$5(handleInteractionBubble, "handleInteractionBubble");
-		const handlePointerDown = /* @__PURE__ */ __name$5((event) => {
+		const handlePointerDown = (event) => {
 			if (event.target && !isPointerInsideReactTreeRef.current) {
 				let handleAndDispatchPointerDownOutsideEvent2 = function() {
-					ownerDocument.removeEventListener("click", handleClickRef.current);
-					const wasOutsideInteractionIntercepted = isOutsideInteractionIntercepted();
-					resetOutsideInteraction();
-					if (!wasOutsideInteractionIntercepted) handleAndDispatchCustomEvent(POINTER_DOWN_OUTSIDE, handlePointerDownOutside, eventDetail, { discrete: true });
+					handleAndDispatchCustomEvent(POINTER_DOWN_OUTSIDE, handlePointerDownOutside, eventDetail, { discrete: true });
 				};
-				__name$5(handleAndDispatchPointerDownOutsideEvent2, "handleAndDispatchPointerDownOutsideEvent");
-				if (!shouldHandlePointerDownOutside(event.target)) {
-					ownerDocument.removeEventListener("click", handleClickRef.current);
-					resetOutsideInteraction();
-					isPointerInsideReactTreeRef.current = false;
-					return;
-				}
 				const eventDetail = { originalEvent: event };
-				isPointerDownOutsideRef.current = true;
-				isDeferredPointerDownOutsideRef.current = deferPointerDownOutside && event.button === 0;
-				interceptedOutsideInteractionEventsRef.current.clear();
-				if (!deferPointerDownOutside || event.button !== 0) handleAndDispatchPointerDownOutsideEvent2();
-				else {
+				if (event.pointerType === "touch") {
 					ownerDocument.removeEventListener("click", handleClickRef.current);
 					handleClickRef.current = handleAndDispatchPointerDownOutsideEvent2;
 					ownerDocument.addEventListener("click", handleClickRef.current, { once: true });
-				}
-			} else {
-				ownerDocument.removeEventListener("click", handleClickRef.current);
-				resetOutsideInteraction();
-			}
+				} else handleAndDispatchPointerDownOutsideEvent2();
+			} else ownerDocument.removeEventListener("click", handleClickRef.current);
 			isPointerInsideReactTreeRef.current = false;
-		}, "handlePointerDown");
-		const outsideInteractionEvents = [
-			"pointerup",
-			"mousedown",
-			"mouseup",
-			"touchstart",
-			"touchend",
-			"click"
-		];
-		for (const eventName of outsideInteractionEvents) {
-			ownerDocument.addEventListener(eventName, handleInteractionCapture, true);
-			ownerDocument.addEventListener(eventName, handleInteractionBubble);
-		}
+		};
 		const timerId = window.setTimeout(() => {
 			ownerDocument.addEventListener("pointerdown", handlePointerDown);
 		}, 0);
@@ -635,43 +502,29 @@ function usePointerDownOutside(onPointerDownOutside, args) {
 			window.clearTimeout(timerId);
 			ownerDocument.removeEventListener("pointerdown", handlePointerDown);
 			ownerDocument.removeEventListener("click", handleClickRef.current);
-			for (const eventName of outsideInteractionEvents) {
-				ownerDocument.removeEventListener(eventName, handleInteractionCapture, true);
-				ownerDocument.removeEventListener(eventName, handleInteractionBubble);
-			}
 		};
-	}, [
-		ownerDocument,
-		handlePointerDownOutside,
-		deferPointerDownOutside,
-		isDeferredPointerDownOutsideRef,
-		dismissableSurfaces,
-		shouldHandlePointerDownOutside
-	]);
-	return { onPointerDownCapture: /* @__PURE__ */ __name$5(() => isPointerInsideReactTreeRef.current = true, "onPointerDownCapture") };
+	}, [ownerDocument, handlePointerDownOutside]);
+	return { onPointerDownCapture: () => isPointerInsideReactTreeRef.current = true };
 }
-__name$5(usePointerDownOutside, "usePointerDownOutside");
 function useFocusOutside(onFocusOutside, ownerDocument = globalThis?.document) {
 	const handleFocusOutside = useCallbackRef$1(onFocusOutside);
 	const isFocusInsideReactTreeRef = import_react.useRef(false);
 	import_react.useEffect(() => {
-		const handleFocus = /* @__PURE__ */ __name$5((event) => {
+		const handleFocus = (event) => {
 			if (event.target && !isFocusInsideReactTreeRef.current) handleAndDispatchCustomEvent(FOCUS_OUTSIDE, handleFocusOutside, { originalEvent: event }, { discrete: false });
-		}, "handleFocus");
+		};
 		ownerDocument.addEventListener("focusin", handleFocus);
 		return () => ownerDocument.removeEventListener("focusin", handleFocus);
 	}, [ownerDocument, handleFocusOutside]);
 	return {
-		onFocusCapture: /* @__PURE__ */ __name$5(() => isFocusInsideReactTreeRef.current = true, "onFocusCapture"),
-		onBlurCapture: /* @__PURE__ */ __name$5(() => isFocusInsideReactTreeRef.current = false, "onBlurCapture")
+		onFocusCapture: () => isFocusInsideReactTreeRef.current = true,
+		onBlurCapture: () => isFocusInsideReactTreeRef.current = false
 	};
 }
-__name$5(useFocusOutside, "useFocusOutside");
 function dispatchUpdate() {
 	const event = new CustomEvent(CONTEXT_UPDATE);
 	document.dispatchEvent(event);
 }
-__name$5(dispatchUpdate, "dispatchUpdate");
 function handleAndDispatchCustomEvent(name, handler, detail, { discrete }) {
 	const target = detail.originalEvent.target;
 	const event = new CustomEvent(name, {
@@ -683,27 +536,22 @@ function handleAndDispatchCustomEvent(name, handler, detail, { discrete }) {
 	if (discrete) dispatchDiscreteCustomEvent(target, event);
 	else target.dispatchEvent(event);
 }
-__name$5(handleAndDispatchCustomEvent, "handleAndDispatchCustomEvent");
 //#endregion
 //#region node_modules/@radix-ui/react-focus-scope/dist/index.mjs
-var __defProp$4 = Object.defineProperty;
-var __name$4 = (target, value) => __defProp$4(target, "name", {
-	value,
-	configurable: true
-});
 var AUTOFOCUS_ON_MOUNT = "focusScope.autoFocusOnMount";
 var AUTOFOCUS_ON_UNMOUNT = "focusScope.autoFocusOnUnmount";
 var EVENT_OPTIONS = {
 	bubbles: false,
 	cancelable: true
 };
-var FocusScope = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$4(function FocusScope2(props, forwardedRef) {
+var FOCUS_SCOPE_NAME = "FocusScope";
+var FocusScope = import_react.forwardRef((props, forwardedRef) => {
 	const { loop = false, trapped = false, onMountAutoFocus: onMountAutoFocusProp, onUnmountAutoFocus: onUnmountAutoFocusProp, ...scopeProps } = props;
 	const [container, setContainer] = import_react.useState(null);
 	const onMountAutoFocus = useCallbackRef$1(onMountAutoFocusProp);
 	const onUnmountAutoFocus = useCallbackRef$1(onUnmountAutoFocusProp);
 	const lastFocusedElementRef = import_react.useRef(null);
-	const composedRefs = useComposedRefs(forwardedRef, setContainer);
+	const composedRefs = useComposedRefs(forwardedRef, (node) => setContainer(node));
 	const focusScope = import_react.useRef({
 		paused: false,
 		pause() {
@@ -729,9 +577,6 @@ var FocusScope = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$
 				if (document.activeElement !== document.body) return;
 				for (const mutation of mutations) if (mutation.removedNodes.length > 0) focus(container);
 			};
-			__name$4(handleFocusIn2, "handleFocusIn");
-			__name$4(handleFocusOut2, "handleFocusOut");
-			__name$4(handleMutations2, "handleMutations");
 			document.addEventListener("focusin", handleFocusIn2);
 			document.addEventListener("focusout", handleFocusOut2);
 			const mutationObserver = new MutationObserver(handleMutations2);
@@ -810,7 +655,8 @@ var FocusScope = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$
 		ref: composedRefs,
 		onKeyDown: handleKeyDown
 	});
-}, "FocusScope"));
+});
+FocusScope.displayName = FOCUS_SCOPE_NAME;
 function focusFirst(candidates, { select = false } = {}) {
 	const previouslyFocusedElement = document.activeElement;
 	for (const candidate of candidates) {
@@ -818,28 +664,23 @@ function focusFirst(candidates, { select = false } = {}) {
 		if (document.activeElement !== previouslyFocusedElement) return;
 	}
 }
-__name$4(focusFirst, "focusFirst");
 function getTabbableEdges(container) {
 	const candidates = getTabbableCandidates(container);
 	return [findVisible(candidates, container), findVisible(candidates.reverse(), container)];
 }
-__name$4(getTabbableEdges, "getTabbableEdges");
 function getTabbableCandidates(container) {
 	const nodes = [];
-	const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, { acceptNode: /* @__PURE__ */ __name$4((node) => {
+	const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, { acceptNode: (node) => {
 		const isHiddenInput = node.tagName === "INPUT" && node.type === "hidden";
 		if (node.disabled || node.hidden || isHiddenInput) return NodeFilter.FILTER_SKIP;
 		return node.tabIndex >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-	}, "acceptNode") });
+	} });
 	while (walker.nextNode()) nodes.push(walker.currentNode);
 	return nodes;
 }
-__name$4(getTabbableCandidates, "getTabbableCandidates");
 function findVisible(elements, container) {
-	const canUseCheckVisibility = typeof container.checkVisibility === "function" && container.checkVisibility({ checkVisibilityCSS: true });
-	for (const element of elements) if (!(canUseCheckVisibility ? !element.checkVisibility({ checkVisibilityCSS: true }) : isHidden(element, { upTo: container }))) return element;
+	for (const element of elements) if (!isHidden(element, { upTo: container })) return element;
 }
-__name$4(findVisible, "findVisible");
 function isHidden(node, { upTo }) {
 	if (getComputedStyle(node).visibility === "hidden") return true;
 	while (node) {
@@ -849,11 +690,9 @@ function isHidden(node, { upTo }) {
 	}
 	return false;
 }
-__name$4(isHidden, "isHidden");
 function isSelectableInput(element) {
 	return element instanceof HTMLInputElement && "select" in element;
 }
-__name$4(isSelectableInput, "isSelectableInput");
 function focus(element, { select = false } = {}) {
 	if (element && element.focus) {
 		const previouslyFocusedElement = document.activeElement;
@@ -861,7 +700,6 @@ function focus(element, { select = false } = {}) {
 		if (element !== previouslyFocusedElement && isSelectableInput(element) && select) element.select();
 	}
 }
-__name$4(focus, "focus");
 var focusScopesStack = createFocusScopesStack();
 function createFocusScopesStack() {
 	let stack = [];
@@ -878,26 +716,19 @@ function createFocusScopesStack() {
 		}
 	};
 }
-__name$4(createFocusScopesStack, "createFocusScopesStack");
 function arrayRemove(array, item) {
 	const updatedArray = [...array];
 	const index = updatedArray.indexOf(item);
 	if (index !== -1) updatedArray.splice(index, 1);
 	return updatedArray;
 }
-__name$4(arrayRemove, "arrayRemove");
 function removeLinks(items) {
 	return items.filter((item) => item.tagName !== "A");
 }
-__name$4(removeLinks, "removeLinks");
 //#endregion
 //#region node_modules/@radix-ui/react-portal/dist/index.mjs
-var __defProp$3 = Object.defineProperty;
-var __name$3 = (target, value) => __defProp$3(target, "name", {
-	value,
-	configurable: true
-});
-var Portal = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$3(function Portal2(props, forwardedRef) {
+var PORTAL_NAME$2 = "Portal";
+var Portal$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { container: containerProp, ...portalProps } = props;
 	const [mounted, setMounted] = import_react.useState(false);
 	useLayoutEffect2(() => setMounted(true), []);
@@ -906,33 +737,28 @@ var Portal = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$3(fu
 		...portalProps,
 		ref: forwardedRef
 	}), container) : null;
-}, "Portal"));
+});
+Portal$1.displayName = PORTAL_NAME$2;
 //#endregion
 //#region node_modules/@radix-ui/react-presence/dist/index.mjs
-var __defProp$2 = Object.defineProperty;
-var __name$2 = (target, value) => __defProp$2(target, "name", {
-	value,
-	configurable: true
-});
 function useStateMachine(initialState, machine) {
 	return import_react.useReducer((state, event) => {
 		return machine[state][event] ?? state;
 	}, initialState);
 }
-__name$2(useStateMachine, "useStateMachine");
-var Presence = /* @__PURE__ */ __name$2((props) => {
+var Presence = (props) => {
 	const { present, children } = props;
 	const presence = usePresence(present);
 	const child = typeof children === "function" ? children({ present: presence.isPresent }) : import_react.Children.only(children);
-	const ref = useStableComposedRefs(presence.ref, getElementRef(child));
+	const ref = useComposedRefs(presence.ref, getElementRef$1(child));
 	return typeof children === "function" || presence.isPresent ? import_react.cloneElement(child, { ref }) : null;
-}, "Presence");
+};
+Presence.displayName = "Presence";
 function usePresence(present) {
 	const [node, setNode] = import_react.useState();
 	const stylesRef = import_react.useRef(null);
 	const prevPresentRef = import_react.useRef(present);
 	const prevAnimationNameRef = import_react.useRef("none");
-	const mountAnimationNameRef = import_react.useRef(void 0);
 	const [state, send] = useStateMachine(present ? "mounted" : "unmounted", {
 		mounted: {
 			UNMOUNT: "unmounted",
@@ -945,10 +771,8 @@ function usePresence(present) {
 		unmounted: { MOUNT: "mounted" }
 	});
 	import_react.useEffect(() => {
-		if (state === "mounted") {
-			prevAnimationNameRef.current = mountAnimationNameRef.current ?? getAnimationName(stylesRef.current);
-			mountAnimationNameRef.current = void 0;
-		} else prevAnimationNameRef.current = "none";
+		const currentAnimationName = getAnimationName(stylesRef.current);
+		prevAnimationNameRef.current = state === "mounted" ? currentAnimationName : "none";
 	}, [state]);
 	useLayoutEffect2(() => {
 		const styles = stylesRef.current;
@@ -956,10 +780,8 @@ function usePresence(present) {
 		if (wasPresent !== present) {
 			const prevAnimationName = prevAnimationNameRef.current;
 			const currentAnimationName = getAnimationName(styles);
-			if (present) {
-				mountAnimationNameRef.current = currentAnimationName;
-				send("MOUNT");
-			} else if (currentAnimationName === "none" || styles?.display === "none") send("UNMOUNT");
+			if (present) send("MOUNT");
+			else if (currentAnimationName === "none" || styles?.display === "none") send("UNMOUNT");
 			else if (wasPresent && prevAnimationName !== currentAnimationName) send("ANIMATION_OUT");
 			else send("UNMOUNT");
 			prevPresentRef.current = present;
@@ -969,7 +791,7 @@ function usePresence(present) {
 		if (node) {
 			let timeoutId;
 			const ownerWindow = node.ownerDocument.defaultView ?? window;
-			const handleAnimationEnd = /* @__PURE__ */ __name$2((event) => {
+			const handleAnimationEnd = (event) => {
 				const isCurrentAnimation = getAnimationName(stylesRef.current).includes(CSS.escape(event.animationName));
 				if (event.target === node && isCurrentAnimation) {
 					send("ANIMATION_END");
@@ -981,10 +803,10 @@ function usePresence(present) {
 						});
 					}
 				}
-			}, "handleAnimationEnd");
-			const handleAnimationStart = /* @__PURE__ */ __name$2((event) => {
+			};
+			const handleAnimationStart = (event) => {
 				if (event.target === node) prevAnimationNameRef.current = getAnimationName(stylesRef.current);
-			}, "handleAnimationStart");
+			};
 			node.addEventListener("animationstart", handleAnimationStart);
 			node.addEventListener("animationcancel", handleAnimationEnd);
 			node.addEventListener("animationend", handleAnimationEnd);
@@ -999,47 +821,15 @@ function usePresence(present) {
 	return {
 		isPresent: ["mounted", "unmountSuspended"].includes(state),
 		ref: import_react.useCallback((node2) => {
-			if (node2) {
-				const styles = getComputedStyle(node2);
-				stylesRef.current = styles;
-				mountAnimationNameRef.current = getAnimationName(styles);
-			} else stylesRef.current = null;
+			stylesRef.current = node2 ? getComputedStyle(node2) : null;
 			setNode(node2);
 		}, [])
 	};
 }
-__name$2(usePresence, "usePresence");
-function setRef(ref, value) {
-	if (typeof ref === "function") return ref(value);
-	else if (ref !== null && ref !== void 0) ref.current = value;
-}
-__name$2(setRef, "setRef");
-function useStableComposedRefs(...refs) {
-	const refsRef = import_react.useRef(refs);
-	refsRef.current = refs;
-	return import_react.useCallback((node) => {
-		const currentRefs = refsRef.current;
-		let hasCleanup = false;
-		const cleanups = currentRefs.map((ref) => {
-			const cleanup = setRef(ref, node);
-			if (!hasCleanup && typeof cleanup === "function") hasCleanup = true;
-			return cleanup;
-		});
-		if (hasCleanup) return () => {
-			for (let i = 0; i < cleanups.length; i++) {
-				const cleanup = cleanups[i];
-				if (typeof cleanup === "function") cleanup();
-				else setRef(currentRefs[i], null);
-			}
-		};
-	}, []);
-}
-__name$2(useStableComposedRefs, "useStableComposedRefs");
 function getAnimationName(styles) {
 	return styles?.animationName || "none";
 }
-__name$2(getAnimationName, "getAnimationName");
-function getElementRef(element) {
+function getElementRef$1(element) {
 	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
 	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
 	if (mayWarn) return element.ref;
@@ -1048,28 +838,18 @@ function getElementRef(element) {
 	if (mayWarn) return element.props.ref;
 	return element.props.ref || element.ref;
 }
-__name$2(getElementRef, "getElementRef");
 //#endregion
 //#region node_modules/@radix-ui/react-focus-guards/dist/index.mjs
 var count = 0;
-var guards = null;
 function useFocusGuards() {
 	import_react.useEffect(() => {
-		if (!guards) guards = {
-			start: createFocusGuard(),
-			end: createFocusGuard()
-		};
-		const { start, end } = guards;
-		if (document.body.firstElementChild !== start) document.body.insertAdjacentElement("afterbegin", start);
-		if (document.body.lastElementChild !== end) document.body.insertAdjacentElement("beforeend", end);
+		const edgeGuards = document.querySelectorAll("[data-radix-focus-guard]");
+		document.body.insertAdjacentElement("afterbegin", edgeGuards[0] ?? createFocusGuard());
+		document.body.insertAdjacentElement("beforeend", edgeGuards[1] ?? createFocusGuard());
 		count++;
 		return () => {
-			if (count === 1) {
-				guards?.start.remove();
-				guards?.end.remove();
-				guards = null;
-			}
-			count = Math.max(0, count - 1);
+			if (count === 1) document.querySelectorAll("[data-radix-focus-guard]").forEach((node) => node.remove());
+			count--;
 		};
 	}, []);
 }
@@ -1874,16 +1654,94 @@ var hideOthers = function(originalTarget, parentNode, markerName) {
 	return applyAttributeToOthers(targets, activeParentNode, markerName, "aria-hidden");
 };
 //#endregion
+//#region node_modules/@radix-ui/react-dialog/node_modules/@radix-ui/react-slot/dist/index.mjs
+// @__NO_SIDE_EFFECTS__
+function createSlot(ownerName) {
+	const SlotClone = /* @__PURE__ */ createSlotClone(ownerName);
+	const Slot2 = import_react.forwardRef((props, forwardedRef) => {
+		const { children, ...slotProps } = props;
+		const childrenArray = import_react.Children.toArray(children);
+		const slottable = childrenArray.find(isSlottable);
+		if (slottable) {
+			const newElement = slottable.props.children;
+			const newChildren = childrenArray.map((child) => {
+				if (child === slottable) {
+					if (import_react.Children.count(newElement) > 1) return import_react.Children.only(null);
+					return import_react.isValidElement(newElement) ? newElement.props.children : null;
+				} else return child;
+			});
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+				...slotProps,
+				ref: forwardedRef,
+				children: import_react.isValidElement(newElement) ? import_react.cloneElement(newElement, void 0, newChildren) : null
+			});
+		}
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+			...slotProps,
+			ref: forwardedRef,
+			children
+		});
+	});
+	Slot2.displayName = `${ownerName}.Slot`;
+	return Slot2;
+}
+// @__NO_SIDE_EFFECTS__
+function createSlotClone(ownerName) {
+	const SlotClone = import_react.forwardRef((props, forwardedRef) => {
+		const { children, ...slotProps } = props;
+		if (import_react.isValidElement(children)) {
+			const childrenRef = getElementRef(children);
+			const props2 = mergeProps(slotProps, children.props);
+			if (children.type !== import_react.Fragment) props2.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
+			return import_react.cloneElement(children, props2);
+		}
+		return import_react.Children.count(children) > 1 ? import_react.Children.only(null) : null;
+	});
+	SlotClone.displayName = `${ownerName}.SlotClone`;
+	return SlotClone;
+}
+var SLOTTABLE_IDENTIFIER$1 = Symbol("radix.slottable");
+function isSlottable(child) {
+	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER$1;
+}
+function mergeProps(slotProps, childProps) {
+	const overrideProps = { ...childProps };
+	for (const propName in childProps) {
+		const slotPropValue = slotProps[propName];
+		const childPropValue = childProps[propName];
+		if (/^on[A-Z]/.test(propName)) {
+			if (slotPropValue && childPropValue) overrideProps[propName] = (...args) => {
+				const result = childPropValue(...args);
+				slotPropValue(...args);
+				return result;
+			};
+			else if (slotPropValue) overrideProps[propName] = slotPropValue;
+		} else if (propName === "style") overrideProps[propName] = {
+			...slotPropValue,
+			...childPropValue
+		};
+		else if (propName === "className") overrideProps[propName] = [slotPropValue, childPropValue].filter(Boolean).join(" ");
+	}
+	return {
+		...slotProps,
+		...overrideProps
+	};
+}
+function getElementRef(element) {
+	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
+	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.ref;
+	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
+	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.props.ref;
+	return element.props.ref || element.ref;
+}
+//#endregion
 //#region node_modules/@radix-ui/react-dialog/dist/index.mjs
-var __defProp$1 = Object.defineProperty;
-var __name$1 = (target, value) => __defProp$1(target, "name", {
-	value,
-	configurable: true
-});
 var DIALOG_NAME = "Dialog";
 var [createDialogContext, createDialogScope] = createContextScope(DIALOG_NAME);
 var [DialogProvider, useDialogContext] = createDialogContext(DIALOG_NAME);
-var Dialog = /* @__PURE__ */ __name$1((props) => {
+var Dialog = (props) => {
 	const { __scopeDialog, children, open: openProp, defaultOpen, onOpenChange, modal = true } = props;
 	const triggerRef = import_react.useRef(null);
 	const contentRef = import_react.useRef(null);
@@ -1893,8 +1751,6 @@ var Dialog = /* @__PURE__ */ __name$1((props) => {
 		onChange: onOpenChange,
 		caller: DIALOG_NAME
 	});
-	const [titleCount, setTitleCount] = import_react.useState(0);
-	const [descriptionCount, setDescriptionCount] = import_react.useState(0);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogProvider, {
 		scope: __scopeDialog,
 		triggerRef,
@@ -1902,56 +1758,55 @@ var Dialog = /* @__PURE__ */ __name$1((props) => {
 		contentId: useId(),
 		titleId: useId(),
 		descriptionId: useId(),
-		titlePresent: titleCount > 0,
-		descriptionPresent: descriptionCount > 0,
-		setTitleCount,
-		setDescriptionCount,
 		open,
 		onOpenChange: setOpen,
 		onOpenToggle: import_react.useCallback(() => setOpen((prevOpen) => !prevOpen), [setOpen]),
 		modal,
 		children
 	});
-}, "Dialog");
-var TRIGGER_NAME = "DialogTrigger";
-var DialogTrigger = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$1(function DialogTrigger2(props, forwardedRef) {
+};
+Dialog.displayName = DIALOG_NAME;
+var TRIGGER_NAME$1 = "DialogTrigger";
+var DialogTrigger = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...triggerProps } = props;
-	const context = useDialogContext(TRIGGER_NAME, __scopeDialog);
+	const context = useDialogContext(TRIGGER_NAME$1, __scopeDialog);
 	const composedTriggerRef = useComposedRefs(forwardedRef, context.triggerRef);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
 		type: "button",
 		"aria-haspopup": "dialog",
 		"aria-expanded": context.open,
-		"aria-controls": context.open ? context.contentId : void 0,
+		"aria-controls": context.contentId,
 		"data-state": getState(context.open),
 		...triggerProps,
 		ref: composedTriggerRef,
 		onClick: composeEventHandlers(props.onClick, context.onOpenToggle)
 	});
-}, "DialogTrigger"));
-var PORTAL_NAME = "DialogPortal";
-var [PortalProvider, usePortalContext] = createDialogContext(PORTAL_NAME, { forceMount: void 0 });
-var DialogPortal = /* @__PURE__ */ __name$1((props) => {
+});
+DialogTrigger.displayName = TRIGGER_NAME$1;
+var PORTAL_NAME$1 = "DialogPortal";
+var [PortalProvider, usePortalContext] = createDialogContext(PORTAL_NAME$1, { forceMount: void 0 });
+var DialogPortal = (props) => {
 	const { __scopeDialog, forceMount, children, container } = props;
-	const context = useDialogContext(PORTAL_NAME, __scopeDialog);
+	const context = useDialogContext(PORTAL_NAME$1, __scopeDialog);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PortalProvider, {
 		scope: __scopeDialog,
 		forceMount,
 		children: import_react.Children.map(children, (child) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
 			present: forceMount || context.open,
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Portal, {
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Portal$1, {
 				asChild: true,
 				container,
 				children: child
 			})
 		}))
 	});
-}, "DialogPortal");
-var OVERLAY_NAME = "DialogOverlay";
-var DialogOverlay = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$1(function DialogOverlay2(props, forwardedRef) {
-	const portalContext = usePortalContext(OVERLAY_NAME, props.__scopeDialog);
+};
+DialogPortal.displayName = PORTAL_NAME$1;
+var OVERLAY_NAME$1 = "DialogOverlay";
+var DialogOverlay = import_react.forwardRef((props, forwardedRef) => {
+	const portalContext = usePortalContext(OVERLAY_NAME$1, props.__scopeDialog);
 	const { forceMount = portalContext.forceMount, ...overlayProps } = props;
-	const context = useDialogContext(OVERLAY_NAME, props.__scopeDialog);
+	const context = useDialogContext(OVERLAY_NAME$1, props.__scopeDialog);
 	return context.modal ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
 		present: forceMount || context.open,
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogOverlayImpl, {
@@ -1959,12 +1814,12 @@ var DialogOverlay = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __na
 			ref: forwardedRef
 		})
 	}) : null;
-}, "DialogOverlay"));
+});
+DialogOverlay.displayName = OVERLAY_NAME$1;
 var Slot = /* @__PURE__ */ createSlot("DialogOverlay.RemoveScroll");
-var DialogOverlayImpl = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$1(function DialogOverlayImpl2(props, forwardedRef) {
+var DialogOverlayImpl = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...overlayProps } = props;
-	const context = useDialogContext(OVERLAY_NAME, __scopeDialog);
-	const composedRefs = useComposedRefs(forwardedRef, useDismissableLayerSurface());
+	const context = useDialogContext(OVERLAY_NAME$1, __scopeDialog);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ReactRemoveScroll, {
 		as: Slot,
 		allowPinchZoom: true,
@@ -1972,19 +1827,19 @@ var DialogOverlayImpl = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ 
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
 			"data-state": getState(context.open),
 			...overlayProps,
-			ref: composedRefs,
+			ref: forwardedRef,
 			style: {
 				pointerEvents: "auto",
 				...overlayProps.style
 			}
 		})
 	});
-}, "DialogOverlayImpl"));
-var CONTENT_NAME = "DialogContent";
-var DialogContent = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$1(function DialogContent2(props, forwardedRef) {
-	const portalContext = usePortalContext(CONTENT_NAME, props.__scopeDialog);
+});
+var CONTENT_NAME$1 = "DialogContent";
+var DialogContent = import_react.forwardRef((props, forwardedRef) => {
+	const portalContext = usePortalContext(CONTENT_NAME$1, props.__scopeDialog);
 	const { forceMount = portalContext.forceMount, ...contentProps } = props;
-	const context = useDialogContext(CONTENT_NAME, props.__scopeDialog);
+	const context = useDialogContext(CONTENT_NAME$1, props.__scopeDialog);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
 		present: forceMount || context.open,
 		children: context.modal ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContentModal, {
@@ -1995,9 +1850,10 @@ var DialogContent = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __na
 			ref: forwardedRef
 		})
 	});
-}, "DialogContent"));
-var DialogContentModal = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$1(function DialogContentModal2(props, forwardedRef) {
-	const context = useDialogContext(CONTENT_NAME, props.__scopeDialog);
+});
+DialogContent.displayName = CONTENT_NAME$1;
+var DialogContentModal = import_react.forwardRef((props, forwardedRef) => {
+	const context = useDialogContext(CONTENT_NAME$1, props.__scopeDialog);
 	const contentRef = import_react.useRef(null);
 	const composedRefs = useComposedRefs(forwardedRef, context.contentRef, contentRef);
 	import_react.useEffect(() => {
@@ -2008,7 +1864,7 @@ var DialogContentModal = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */
 		...props,
 		ref: composedRefs,
 		trapFocus: context.open,
-		disableOutsidePointerEvents: context.open,
+		disableOutsidePointerEvents: true,
 		onCloseAutoFocus: composeEventHandlers(props.onCloseAutoFocus, (event) => {
 			event.preventDefault();
 			context.triggerRef.current?.focus();
@@ -2020,9 +1876,9 @@ var DialogContentModal = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */
 		}),
 		onFocusOutside: composeEventHandlers(props.onFocusOutside, (event) => event.preventDefault())
 	});
-}, "DialogContentModal"));
-var DialogContentNonModal = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$1(function DialogContentNonModal2(props, forwardedRef) {
-	const context = useDialogContext(CONTENT_NAME, props.__scopeDialog);
+});
+var DialogContentNonModal = import_react.forwardRef((props, forwardedRef) => {
+	const context = useDialogContext(CONTENT_NAME$1, props.__scopeDialog);
 	const hasInteractedOutsideRef = import_react.useRef(false);
 	const hasPointerDownOutsideRef = import_react.useRef(false);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContentImpl, {
@@ -2050,12 +1906,14 @@ var DialogContentNonModal = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__
 			if (event.detail.originalEvent.type === "focusin" && hasPointerDownOutsideRef.current) event.preventDefault();
 		}
 	});
-}, "DialogContentNonModal"));
-var DialogContentImpl = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$1(function DialogContentImpl2(props, forwardedRef) {
+});
+var DialogContentImpl = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, trapFocus, onOpenAutoFocus, onCloseAutoFocus, ...contentProps } = props;
-	const context = useDialogContext(CONTENT_NAME, __scopeDialog);
+	const context = useDialogContext(CONTENT_NAME$1, __scopeDialog);
+	const contentRef = import_react.useRef(null);
+	const composedRefs = useComposedRefs(forwardedRef, contentRef);
 	useFocusGuards();
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FocusScope, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FocusScope, {
 		asChild: true,
 		loop: true,
 		trapped: trapFocus,
@@ -2064,48 +1922,42 @@ var DialogContentImpl = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ 
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DismissableLayer, {
 			role: "dialog",
 			id: context.contentId,
-			"aria-describedby": context.descriptionPresent ? context.descriptionId : void 0,
-			"aria-labelledby": context.titlePresent ? context.titleId : void 0,
+			"aria-describedby": context.descriptionId,
+			"aria-labelledby": context.titleId,
 			"data-state": getState(context.open),
 			...contentProps,
-			ref: forwardedRef,
-			deferPointerDownOutside: true,
+			ref: composedRefs,
 			onDismiss: () => context.onOpenChange(false)
 		})
-	}) });
-}, "DialogContentImpl"));
-var TITLE_NAME = "DialogTitle";
-var DialogTitle = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$1(function DialogTitle2(props, forwardedRef) {
+	}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TitleWarning, { titleId: context.titleId }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DescriptionWarning$1, {
+		contentRef,
+		descriptionId: context.descriptionId
+	})] })] });
+});
+var TITLE_NAME$1 = "DialogTitle";
+var DialogTitle = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...titleProps } = props;
-	const context = useDialogContext(TITLE_NAME, __scopeDialog);
-	const { setTitleCount } = context;
-	useLayoutEffect2(() => {
-		setTitleCount((count) => count + 1);
-		return () => setTitleCount((count) => count - 1);
-	}, [setTitleCount]);
+	const context = useDialogContext(TITLE_NAME$1, __scopeDialog);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.h2, {
 		id: context.titleId,
 		...titleProps,
 		ref: forwardedRef
 	});
-}, "DialogTitle"));
-var DESCRIPTION_NAME = "DialogDescription";
-var DialogDescription = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$1(function DialogDescription2(props, forwardedRef) {
+});
+DialogTitle.displayName = TITLE_NAME$1;
+var DESCRIPTION_NAME$1 = "DialogDescription";
+var DialogDescription = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...descriptionProps } = props;
-	const context = useDialogContext(DESCRIPTION_NAME, __scopeDialog);
-	const { setDescriptionCount } = context;
-	useLayoutEffect2(() => {
-		setDescriptionCount((count) => count + 1);
-		return () => setDescriptionCount((count) => count - 1);
-	}, [setDescriptionCount]);
+	const context = useDialogContext(DESCRIPTION_NAME$1, __scopeDialog);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.p, {
 		id: context.descriptionId,
 		...descriptionProps,
 		ref: forwardedRef
 	});
-}, "DialogDescription"));
+});
+DialogDescription.displayName = DESCRIPTION_NAME$1;
 var CLOSE_NAME = "DialogClose";
-var DialogClose = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name$1(function DialogClose2(props, forwardedRef) {
+var DialogClose = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...closeProps } = props;
 	const context = useDialogContext(CLOSE_NAME, __scopeDialog);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
@@ -2114,118 +1966,205 @@ var DialogClose = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name
 		ref: forwardedRef,
 		onClick: composeEventHandlers(props.onClick, () => context.onOpenChange(false))
 	});
-}, "DialogClose"));
+});
+DialogClose.displayName = CLOSE_NAME;
 function getState(open) {
 	return open ? "open" : "closed";
 }
-__name$1(getState, "getState");
+var TITLE_WARNING_NAME = "DialogTitleWarning";
+var [WarningProvider, useWarningContext] = createContext2(TITLE_WARNING_NAME, {
+	contentName: CONTENT_NAME$1,
+	titleName: TITLE_NAME$1,
+	docsSlug: "dialog"
+});
+var TitleWarning = ({ titleId }) => {
+	const titleWarningContext = useWarningContext(TITLE_WARNING_NAME);
+	const MESSAGE = `\`${titleWarningContext.contentName}\` requires a \`${titleWarningContext.titleName}\` for the component to be accessible for screen reader users.
+
+If you want to hide the \`${titleWarningContext.titleName}\`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/${titleWarningContext.docsSlug}`;
+	import_react.useEffect(() => {
+		if (titleId) {
+			if (!document.getElementById(titleId)) console.error(MESSAGE);
+		}
+	}, [MESSAGE, titleId]);
+	return null;
+};
+var DESCRIPTION_WARNING_NAME = "DialogDescriptionWarning";
+var DescriptionWarning$1 = ({ contentRef, descriptionId }) => {
+	const MESSAGE = `Warning: Missing \`Description\` or \`aria-describedby={undefined}\` for {${useWarningContext(DESCRIPTION_WARNING_NAME).contentName}}.`;
+	import_react.useEffect(() => {
+		const describedById = contentRef.current?.getAttribute("aria-describedby");
+		if (descriptionId && describedById) {
+			if (!document.getElementById(descriptionId)) console.warn(MESSAGE);
+		}
+	}, [
+		MESSAGE,
+		contentRef,
+		descriptionId
+	]);
+	return null;
+};
+var Root = Dialog;
+var Trigger = DialogTrigger;
+var Portal = DialogPortal;
+var Overlay = DialogOverlay;
+var Content = DialogContent;
+var Title = DialogTitle;
+var Description = DialogDescription;
+var Close = DialogClose;
+//#endregion
+//#region node_modules/@radix-ui/react-alert-dialog/node_modules/@radix-ui/react-slot/dist/index.mjs
+var SLOTTABLE_IDENTIFIER = Symbol("radix.slottable");
+// @__NO_SIDE_EFFECTS__
+function createSlottable(ownerName) {
+	const Slottable2 = ({ children }) => {
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
+	};
+	Slottable2.displayName = `${ownerName}.Slottable`;
+	Slottable2.__radixId = SLOTTABLE_IDENTIFIER;
+	return Slottable2;
+}
 //#endregion
 //#region node_modules/@radix-ui/react-alert-dialog/dist/index.mjs
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", {
-	value,
-	configurable: true
-});
-var [createAlertDialogContext, createAlertDialogScope] = createContextScope("AlertDialog", [createDialogScope]);
+var ROOT_NAME = "AlertDialog";
+var [createAlertDialogContext, createAlertDialogScope] = createContextScope(ROOT_NAME, [createDialogScope]);
 var useDialogScope = createDialogScope();
-var AlertDialog = /* @__PURE__ */ __name((props) => {
+var AlertDialog = (props) => {
 	const { __scopeAlertDialog, ...alertDialogProps } = props;
 	const dialogScope = useDialogScope(__scopeAlertDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dialog, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root, {
 		...dialogScope,
 		...alertDialogProps,
 		modal: true
 	});
-}, "AlertDialog");
-var AlertDialogTrigger = import_react.forwardRef(/* @__PURE__ */ __name(function AlertDialogTrigger2(props, forwardedRef) {
+};
+AlertDialog.displayName = ROOT_NAME;
+var TRIGGER_NAME = "AlertDialogTrigger";
+var AlertDialogTrigger = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeAlertDialog, ...triggerProps } = props;
 	const dialogScope = useDialogScope(__scopeAlertDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTrigger, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trigger, {
 		...dialogScope,
 		...triggerProps,
 		ref: forwardedRef
 	});
-}, "AlertDialogTrigger"));
-var AlertDialogPortal = /* @__PURE__ */ __name((props) => {
+});
+AlertDialogTrigger.displayName = TRIGGER_NAME;
+var PORTAL_NAME = "AlertDialogPortal";
+var AlertDialogPortal = (props) => {
 	const { __scopeAlertDialog, ...portalProps } = props;
 	const dialogScope = useDialogScope(__scopeAlertDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogPortal, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Portal, {
 		...dialogScope,
 		...portalProps
 	});
-}, "AlertDialogPortal");
-var AlertDialogOverlay = import_react.forwardRef(/* @__PURE__ */ __name(function AlertDialogOverlay2(props, forwardedRef) {
+};
+AlertDialogPortal.displayName = PORTAL_NAME;
+var OVERLAY_NAME = "AlertDialogOverlay";
+var AlertDialogOverlay = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeAlertDialog, ...overlayProps } = props;
 	const dialogScope = useDialogScope(__scopeAlertDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogOverlay, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Overlay, {
 		...dialogScope,
 		...overlayProps,
 		ref: forwardedRef
 	});
-}, "AlertDialogOverlay"));
-var [AlertDialogContentProvider, useAlertDialogContentContext] = createAlertDialogContext("AlertDialogContent");
-var AlertDialogContent = import_react.forwardRef(/* @__PURE__ */ __name(function AlertDialogContent2(props, forwardedRef) {
+});
+AlertDialogOverlay.displayName = OVERLAY_NAME;
+var CONTENT_NAME = "AlertDialogContent";
+var [AlertDialogContentProvider, useAlertDialogContentContext] = createAlertDialogContext(CONTENT_NAME);
+var Slottable = /* @__PURE__ */ createSlottable("AlertDialogContent");
+var AlertDialogContent = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeAlertDialog, children, ...contentProps } = props;
 	const dialogScope = useDialogScope(__scopeAlertDialog);
-	const composedRefs = useComposedRefs(forwardedRef, import_react.useRef(null));
+	const contentRef = import_react.useRef(null);
+	const composedRefs = useComposedRefs(forwardedRef, contentRef);
 	const cancelRef = import_react.useRef(null);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AlertDialogContentProvider, {
-		scope: __scopeAlertDialog,
-		cancelRef,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContent, {
-			role: "alertdialog",
-			...dialogScope,
-			...contentProps,
-			ref: composedRefs,
-			onOpenAutoFocus: composeEventHandlers(contentProps.onOpenAutoFocus, (event) => {
-				event.preventDefault();
-				cancelRef.current?.focus({ preventScroll: true });
-			}),
-			onPointerDownOutside: (event) => event.preventDefault(),
-			onInteractOutside: (event) => event.preventDefault(),
-			children
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(WarningProvider, {
+		contentName: CONTENT_NAME,
+		titleName: TITLE_NAME,
+		docsSlug: "alert-dialog",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AlertDialogContentProvider, {
+			scope: __scopeAlertDialog,
+			cancelRef,
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Content, {
+				role: "alertdialog",
+				...dialogScope,
+				...contentProps,
+				ref: composedRefs,
+				onOpenAutoFocus: composeEventHandlers(contentProps.onOpenAutoFocus, (event) => {
+					event.preventDefault();
+					cancelRef.current?.focus({ preventScroll: true });
+				}),
+				onPointerDownOutside: (event) => event.preventDefault(),
+				onInteractOutside: (event) => event.preventDefault(),
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Slottable, { children }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DescriptionWarning, { contentRef })]
+			})
 		})
 	});
-}, "AlertDialogContent"));
-var AlertDialogTitle = import_react.forwardRef(/* @__PURE__ */ __name(function AlertDialogTitle2(props, forwardedRef) {
+});
+AlertDialogContent.displayName = CONTENT_NAME;
+var TITLE_NAME = "AlertDialogTitle";
+var AlertDialogTitle = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeAlertDialog, ...titleProps } = props;
 	const dialogScope = useDialogScope(__scopeAlertDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Title, {
 		...dialogScope,
 		...titleProps,
 		ref: forwardedRef
 	});
-}, "AlertDialogTitle"));
-var AlertDialogDescription = import_react.forwardRef(/* @__PURE__ */ __name(function AlertDialogDescription2(props, forwardedRef) {
+});
+AlertDialogTitle.displayName = TITLE_NAME;
+var DESCRIPTION_NAME = "AlertDialogDescription";
+var AlertDialogDescription = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeAlertDialog, ...descriptionProps } = props;
 	const dialogScope = useDialogScope(__scopeAlertDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Description, {
 		...dialogScope,
 		...descriptionProps,
 		ref: forwardedRef
 	});
-}, "AlertDialogDescription"));
-var AlertDialogAction = import_react.forwardRef(/* @__PURE__ */ __name(function AlertDialogAction2(props, forwardedRef) {
+});
+AlertDialogDescription.displayName = DESCRIPTION_NAME;
+var ACTION_NAME = "AlertDialogAction";
+var AlertDialogAction = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeAlertDialog, ...actionProps } = props;
 	const dialogScope = useDialogScope(__scopeAlertDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogClose, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Close, {
 		...dialogScope,
 		...actionProps,
 		ref: forwardedRef
 	});
-}, "AlertDialogAction"));
+});
+AlertDialogAction.displayName = ACTION_NAME;
 var CANCEL_NAME = "AlertDialogCancel";
-var AlertDialogCancel = import_react.forwardRef(/* @__PURE__ */ __name(function AlertDialogCancel2(props, forwardedRef) {
+var AlertDialogCancel = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeAlertDialog, ...cancelProps } = props;
 	const { cancelRef } = useAlertDialogContentContext(CANCEL_NAME, __scopeAlertDialog);
 	const dialogScope = useDialogScope(__scopeAlertDialog);
 	const ref = useComposedRefs(forwardedRef, cancelRef);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogClose, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Close, {
 		...dialogScope,
 		...cancelProps,
 		ref
 	});
-}, "AlertDialogCancel"));
+});
+AlertDialogCancel.displayName = CANCEL_NAME;
+var DescriptionWarning = ({ contentRef }) => {
+	const MESSAGE = `\`${CONTENT_NAME}\` requires a description for the component to be accessible for screen reader users.
+
+You can add a description to the \`${CONTENT_NAME}\` by passing a \`${DESCRIPTION_NAME}\` component as a child, which also benefits sighted users by adding visible context to the dialog.
+
+Alternatively, you can use your own component as a description by assigning it an \`id\` and passing the same value to the \`aria-describedby\` prop in \`${CONTENT_NAME}\`. If the description is confusing or duplicative for sighted users, you can use the \`@radix-ui/react-visually-hidden\` primitive as a wrapper around your description component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/alert-dialog`;
+	import_react.useEffect(() => {
+		if (!document.getElementById(contentRef.current?.getAttribute("aria-describedby"))) console.warn(MESSAGE);
+	}, [MESSAGE, contentRef]);
+	return null;
+};
 var Root2 = AlertDialog;
 var Trigger2 = AlertDialogTrigger;
 var Portal2 = AlertDialogPortal;
@@ -2236,4 +2175,4 @@ var Cancel = AlertDialogCancel;
 var Title2 = AlertDialogTitle;
 var Description2 = AlertDialogDescription;
 //#endregion
-export { Primitive as A, FocusScope as C, useId as D, useControllableState as E, useComposedRefs as F, require_jsx_runtime as I, Slot$1 as M, createSlot as N, useLayoutEffect2 as O, createSlottable as P, Portal as S, useCallbackRef$1 as T, DialogTrigger as _, Overlay2 as a, useFocusGuards as b, Title2 as c, DialogClose as d, DialogContent as f, DialogTitle as g, DialogPortal as h, Description2 as i, dispatchDiscreteCustomEvent as j, createContextScope as k, Trigger2 as l, DialogOverlay as m, Cancel as n, Portal2 as o, DialogDescription as p, Content2 as r, Root2 as s, Action as t, Dialog as u, hideOthers as v, DismissableLayer as w, Presence as x, ReactRemoveScroll as y };
+export { useLayoutEffect2 as A, FocusScope as C, dispatchDiscreteCustomEvent as D, Primitive as E, composeRefs as M, useComposedRefs as N, useControllableState as O, require_jsx_runtime as P, Portal$1 as S, useCallbackRef$1 as T, Trigger as _, Overlay2 as a, useFocusGuards as b, Title2 as c, Content as d, Description as f, Title as g, Root as h, Description2 as i, createContextScope as j, useId as k, Trigger2 as l, Portal as m, Cancel as n, Portal2 as o, Overlay as p, Content2 as r, Root2 as s, Action as t, Close as u, hideOthers as v, DismissableLayer as w, Presence as x, ReactRemoveScroll as y };

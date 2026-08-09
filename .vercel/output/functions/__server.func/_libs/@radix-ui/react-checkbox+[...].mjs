@@ -1,6 +1,6 @@
 import { o as __toESM } from "../../_runtime.mjs";
 import { u as require_react } from "../@floating-ui/react-dom+[...].mjs";
-import { A as Primitive, E as useControllableState, F as useComposedRefs, I as require_jsx_runtime, O as useLayoutEffect2, k as createContextScope, x as Presence } from "./react-alert-dialog+[...].mjs";
+import { A as useLayoutEffect2, E as Primitive, N as useComposedRefs, O as useControllableState, P as require_jsx_runtime, j as createContextScope, x as Presence } from "./react-alert-dialog+[...].mjs";
 import { t as composeEventHandlers } from "../radix-ui__primitive.mjs";
 //#region node_modules/@radix-ui/react-use-size/dist/index.mjs
 var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
@@ -39,13 +39,23 @@ function useSize(element) {
 	return size;
 }
 //#endregion
+//#region node_modules/@radix-ui/react-use-previous/dist/index.mjs
+function usePrevious(value) {
+	const ref = import_react.useRef({
+		value,
+		previous: value
+	});
+	return import_react.useMemo(() => {
+		if (ref.current.value !== value) {
+			ref.current.previous = ref.current.value;
+			ref.current.value = value;
+		}
+		return ref.current.previous;
+	}, [value]);
+}
+//#endregion
 //#region node_modules/@radix-ui/react-checkbox/dist/index.mjs
 var import_jsx_runtime = require_jsx_runtime();
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", {
-	value,
-	configurable: true
-});
 var CHECKBOX_NAME = "Checkbox";
 var [createCheckboxContext, createCheckboxScope] = createContextScope(CHECKBOX_NAME);
 var [CheckboxProviderImpl, useCheckboxContext] = createCheckboxContext(CHECKBOX_NAME);
@@ -60,7 +70,6 @@ function CheckboxProvider(props) {
 	const [control, setControl] = import_react.useState(null);
 	const [bubbleInput, setBubbleInput] = import_react.useState(null);
 	const hasConsumerStoppedPropagationRef = import_react.useRef(false);
-	const [userInteractionCount, onUserInteraction] = import_react.useReducer((count) => count + 1, 0);
 	const isFormControl = control ? !!form || !!control.closest("form") : true;
 	const context = {
 		checked,
@@ -72,8 +81,6 @@ function CheckboxProvider(props) {
 		form,
 		value,
 		hasConsumerStoppedPropagationRef,
-		userInteractionCount,
-		onUserInteraction,
 		required,
 		defaultChecked: isIndeterminate(defaultChecked) ? false : defaultChecked,
 		isFormControl,
@@ -86,16 +93,15 @@ function CheckboxProvider(props) {
 		children: isFunction(internal_do_not_use_render) ? internal_do_not_use_render(context) : children
 	});
 }
-__name(CheckboxProvider, "CheckboxProvider");
 var TRIGGER_NAME = "CheckboxTrigger";
-var CheckboxTrigger = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name(function CheckboxTrigger2({ __scopeCheckbox, onKeyDown, onClick, ...checkboxProps }, forwardedRef) {
-	const { control, value, disabled, checked, required, setControl, setChecked, hasConsumerStoppedPropagationRef, onUserInteraction, isFormControl, bubbleInput } = useCheckboxContext(TRIGGER_NAME, __scopeCheckbox);
+var CheckboxTrigger = import_react.forwardRef(({ __scopeCheckbox, onKeyDown, onClick, ...checkboxProps }, forwardedRef) => {
+	const { control, value, disabled, checked, required, setControl, setChecked, hasConsumerStoppedPropagationRef, isFormControl, bubbleInput } = useCheckboxContext(TRIGGER_NAME, __scopeCheckbox);
 	const composedRefs = useComposedRefs(forwardedRef, setControl);
 	const initialCheckedStateRef = import_react.useRef(checked);
 	import_react.useEffect(() => {
 		const form = control?.form;
 		if (form) {
-			const reset = /* @__PURE__ */ __name(() => setChecked(initialCheckedStateRef.current), "reset");
+			const reset = () => setChecked(initialCheckedStateRef.current);
 			form.addEventListener("reset", reset);
 			return () => form.removeEventListener("reset", reset);
 		}
@@ -115,7 +121,6 @@ var CheckboxTrigger = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __
 			if (event.key === "Enter") event.preventDefault();
 		}),
 		onClick: composeEventHandlers(onClick, (event) => {
-			onUserInteraction();
 			setChecked((prevChecked) => isIndeterminate(prevChecked) ? true : !prevChecked);
 			if (bubbleInput && isFormControl) {
 				hasConsumerStoppedPropagationRef.current = event.isPropagationStopped();
@@ -123,8 +128,9 @@ var CheckboxTrigger = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __
 			}
 		})
 	});
-}, "CheckboxTrigger"));
-var Checkbox = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name(function Checkbox2(props, forwardedRef) {
+});
+CheckboxTrigger.displayName = TRIGGER_NAME;
+var Checkbox = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeCheckbox, name, checked, defaultChecked, required, disabled, value, onCheckedChange, form, ...checkboxProps } = props;
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxProvider, {
 		__scopeCheckbox,
@@ -142,9 +148,10 @@ var Checkbox = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name(fu
 			__scopeCheckbox
 		}), isFormControl && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxBubbleInput, { __scopeCheckbox })] })
 	});
-}, "Checkbox"));
+});
+Checkbox.displayName = CHECKBOX_NAME;
 var INDICATOR_NAME = "CheckboxIndicator";
-var CheckboxIndicator = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name(function CheckboxIndicator2(props, forwardedRef) {
+var CheckboxIndicator = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeCheckbox, forceMount, ...indicatorProps } = props;
 	const context = useCheckboxContext(INDICATOR_NAME, __scopeCheckbox);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
@@ -160,38 +167,31 @@ var CheckboxIndicator = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ 
 			}
 		})
 	});
-}, "CheckboxIndicator"));
+});
+CheckboxIndicator.displayName = INDICATOR_NAME;
 var BUBBLE_INPUT_NAME = "CheckboxBubbleInput";
-var CheckboxBubbleInput = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name(function CheckboxBubbleInput2({ __scopeCheckbox, onClick, ...props }, forwardedRef) {
-	const { control, hasConsumerStoppedPropagationRef, userInteractionCount, checked, defaultChecked, required, disabled, name, value, form, bubbleInput, setBubbleInput } = useCheckboxContext(BUBBLE_INPUT_NAME, __scopeCheckbox);
+var CheckboxBubbleInput = import_react.forwardRef(({ __scopeCheckbox, ...props }, forwardedRef) => {
+	const { control, hasConsumerStoppedPropagationRef, checked, defaultChecked, required, disabled, name, value, form, bubbleInput, setBubbleInput } = useCheckboxContext(BUBBLE_INPUT_NAME, __scopeCheckbox);
 	const composedRefs = useComposedRefs(forwardedRef, setBubbleInput);
+	const prevChecked = usePrevious(checked);
 	const controlSize = useSize(control);
-	const shouldStopClickPropagationRef = import_react.useRef(false);
-	const prevCheckedRef = import_react.useRef(checked);
-	const prevUserInteractionCountRef = import_react.useRef(userInteractionCount);
 	import_react.useEffect(() => {
 		const input = bubbleInput;
 		if (!input) return;
 		const inputProto = window.HTMLInputElement.prototype;
 		const setChecked = Object.getOwnPropertyDescriptor(inputProto, "checked").set;
-		const isUserInteraction = userInteractionCount !== prevUserInteractionCountRef.current;
-		prevUserInteractionCountRef.current = userInteractionCount;
-		const checkedChanged = prevCheckedRef.current !== checked;
-		prevCheckedRef.current = checked;
-		const bubbles = !(isUserInteraction && hasConsumerStoppedPropagationRef.current);
-		if (checkedChanged && setChecked) {
-			shouldStopClickPropagationRef.current = !isUserInteraction;
+		const bubbles = !hasConsumerStoppedPropagationRef.current;
+		if (prevChecked !== checked && setChecked) {
 			const event = new Event("click", { bubbles });
 			input.indeterminate = isIndeterminate(checked);
 			setChecked.call(input, isIndeterminate(checked) ? false : checked);
 			input.dispatchEvent(event);
-			shouldStopClickPropagationRef.current = false;
 		}
 	}, [
 		bubbleInput,
+		prevChecked,
 		checked,
-		hasConsumerStoppedPropagationRef,
-		userInteractionCount
+		hasConsumerStoppedPropagationRef
 	]);
 	const defaultCheckedRef = import_react.useRef(isIndeterminate(checked) ? false : checked);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.input, {
@@ -206,9 +206,6 @@ var CheckboxBubbleInput = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ *
 		...props,
 		tabIndex: -1,
 		ref: composedRefs,
-		onClick: composeEventHandlers(onClick, (event) => {
-			if (shouldStopClickPropagationRef.current) event.stopPropagation();
-		}),
 		style: {
 			...props.style,
 			...controlSize,
@@ -219,18 +216,16 @@ var CheckboxBubbleInput = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ *
 			transform: "translateX(-100%)"
 		}
 	});
-}, "CheckboxBubbleInput"));
+});
+CheckboxBubbleInput.displayName = BUBBLE_INPUT_NAME;
 function isFunction(value) {
 	return typeof value === "function";
 }
-__name(isFunction, "isFunction");
 function isIndeterminate(checked) {
 	return checked === "indeterminate";
 }
-__name(isIndeterminate, "isIndeterminate");
 function getState(checked) {
 	return isIndeterminate(checked) ? "indeterminate" : checked ? "checked" : "unchecked";
 }
-__name(getState, "getState");
 //#endregion
-export { CheckboxIndicator as n, useSize as r, Checkbox as t };
+export { useSize as i, CheckboxIndicator as n, usePrevious as r, Checkbox as t };

@@ -20,7 +20,6 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedCvsRouteImport } from './routes/_authenticated/cvs'
-import { Route as ApiPublicHealthConfigRouteImport } from './routes/api/public/health.config'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -76,11 +75,6 @@ const AuthenticatedCvsRoute = AuthenticatedCvsRouteImport.update({
   path: '/cvs',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ApiPublicHealthConfigRoute = ApiPublicHealthConfigRouteImport.update({
-  id: '/api/public/health/config',
-  path: '/api/public/health/config',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -93,7 +87,6 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/tailor': typeof AuthenticatedTailorRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/api/public/health/config': typeof ApiPublicHealthConfigRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
@@ -106,7 +99,6 @@ export interface FileRoutesByTo {
   '/tailor': typeof AuthenticatedTailorRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/': typeof AuthenticatedIndexRoute
-  '/api/public/health/config': typeof ApiPublicHealthConfigRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -121,7 +113,6 @@ export interface FileRoutesById {
   '/_authenticated/tailor': typeof AuthenticatedTailorRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/api/public/health/config': typeof ApiPublicHealthConfigRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -136,7 +127,6 @@ export interface FileRouteTypes {
     | '/profile'
     | '/tailor'
     | '/auth/callback'
-    | '/api/public/health/config'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -149,7 +139,6 @@ export interface FileRouteTypes {
     | '/tailor'
     | '/auth/callback'
     | '/'
-    | '/api/public/health/config'
   id:
     | '__root__'
     | '/_authenticated'
@@ -163,7 +152,6 @@ export interface FileRouteTypes {
     | '/_authenticated/tailor'
     | '/auth/callback'
     | '/_authenticated/'
-    | '/api/public/health/config'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,7 +159,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  ApiPublicHealthConfigRoute: typeof ApiPublicHealthConfigRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -253,13 +240,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCvsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/health/config': {
-      id: '/api/public/health/config'
-      path: '/api/public/health/config'
-      fullPath: '/api/public/health/config'
-      preLoaderRoute: typeof ApiPublicHealthConfigRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -299,7 +279,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  ApiPublicHealthConfigRoute: ApiPublicHealthConfigRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

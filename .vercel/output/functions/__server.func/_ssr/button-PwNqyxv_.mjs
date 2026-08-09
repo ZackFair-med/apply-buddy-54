@@ -1,6 +1,7 @@
 import { o as __toESM } from "../_runtime.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
-import { I as require_jsx_runtime, M as Slot } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
+import { P as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
+import { n as Slot } from "../_libs/@radix-ui/react-label+[...].mjs";
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/button-PwNqyxv_.js

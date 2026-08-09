@@ -5,9 +5,13 @@ import { createSupabaseStub, opsFor, type SupabaseStubOptions } from "@/test/sup
 vi.mock("@tanstack/react-start", async () => (await import("@/test/server-fn")).reactStartMock());
 
 const enforceCvLimit = vi.fn();
-vi.mock("./usage.server", () => ({
-  enforceCvLimit: (...args: unknown[]) => enforceCvLimit(...args),
-}));
+vi.mock("./usage.server", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./usage.server")>();
+  return {
+    ...actual,
+    enforceCvLimit: (...args: unknown[]) => enforceCvLimit(...args),
+  };
+});
 
 const extractCvText = vi.fn();
 vi.mock("./cv-parser.server", () => ({

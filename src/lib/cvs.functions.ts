@@ -23,17 +23,20 @@ const uploadSchema = z.object({
 });
 
 export const uploadCv = createServerFn({ method: "POST" })
+  .validator((d: unknown) => uploadSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => uploadSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { enforceCvLimit, CvLimitReachedError } = await import("./usage.server");
     try {
       await enforceCvLimit(context.supabase, context.userId);
     } catch (e) {
-      // Only a real limit becomes a structured result the client can toast cleanly;
-      // anything else (e.g. the plan/count query failing) must still surface as an error.
-      if (!(e instanceof CvLimitReachedError)) throw e;
-      return { limitReached: true as const, message: e.message };
+      if (
+        e instanceof CvLimitReachedError ||
+        (e instanceof Error && e.message.startsWith("CV_LIMIT_REACHED"))
+      ) {
+        return { limitReached: true as const, message: e.message };
+      }
+      throw e;
     }
     const { extractCvText } = await import("./cv-parser.server");
     const bytes = Buffer.from(data.base64, "base64");
@@ -86,8 +89,8 @@ export const uploadCv = createServerFn({ method: "POST" })
   });
 
 export const deleteCv = createServerFn({ method: "POST" })
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: cv, error: lookupError } = await context.supabase
       .from("cvs")
@@ -113,8 +116,8 @@ const updateSchema = z.object({
 });
 
 export const updateCv = createServerFn({ method: "POST" })
+  .validator((d: unknown) => updateSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => updateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("cvs")
@@ -125,8 +128,8 @@ export const updateCv = createServerFn({ method: "POST" })
   });
 
 export const downloadCv = createServerFn({ method: "POST" })
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: cv, error: lookupError } = await context.supabase
       .from("cvs")

@@ -151,8 +151,7 @@ var require_environment_v8_version = /* @__PURE__ */ __commonJSMin(((exports, mo
 	var Deno = globalThis.Deno;
 	var versions = process && process.versions || Deno && Deno.version;
 	var v8 = versions && versions.v8;
-	var match;
-	var version;
+	var match, version;
 	if (v8) {
 		match = v8.split(".");
 		version = match[0] > 0 && match[0] < 4 ? 1 : +(match[0] + match[1]);
@@ -534,9 +533,7 @@ var require_internal_state = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 	var OBJECT_ALREADY_INITIALIZED = "Object already initialized";
 	var TypeError = globalThis.TypeError;
 	var WeakMap = globalThis.WeakMap;
-	var set;
-	var get;
-	var has;
+	var set, get, has;
 	var enforce = function(it) {
 		return has(it) ? get(it) : set(it, {});
 	};
@@ -1261,10 +1258,7 @@ var require_task = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var counter = 0;
 	var queue = {};
 	var ONREADYSTATECHANGE = "onreadystatechange";
-	var $location;
-	var defer;
-	var channel;
-	var port;
+	var $location, defer, channel, port;
 	fails(function() {
 		$location = globalThis.location;
 	});
@@ -1398,11 +1392,7 @@ var require_microtask = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var process = globalThis.process;
 	var Promise = globalThis.Promise;
 	var microtask = safeGetBuiltIn("queueMicrotask");
-	var notify;
-	var toggle;
-	var node;
-	var promise;
-	var then;
+	var notify, toggle, node, promise, then;
 	if (!microtask) {
 		var queue = new Queue();
 		var flush = function() {
@@ -1585,10 +1575,7 @@ var require_es_promise_constructor = /* @__PURE__ */ __commonJSMin((() => {
 	var REJECTED = 2;
 	var HANDLED = 1;
 	var UNHANDLED = 2;
-	var Internal;
-	var OwnPromiseCapability;
-	var PromiseWrapper;
-	var nativeThen;
+	var Internal, OwnPromiseCapability, PromiseWrapper, nativeThen;
 	var isThenable = function(it) {
 		var then;
 		return isObject(it) && isCallable(then = it.then) ? then : false;
@@ -3344,12 +3331,7 @@ var require_performance_now = /* @__PURE__ */ __commonJSMin(((exports, module) =
 //#endregion
 //#region node_modules/raf/index.js
 var require_raf = /* @__PURE__ */ __commonJSMin(((exports, module) => {
-	var now = require_performance_now();
-	var root = typeof window === "undefined" ? global : window;
-	var vendors = ["moz", "webkit"];
-	var suffix = "AnimationFrame";
-	var raf = root["request" + suffix];
-	var caf = root["cancel" + suffix] || root["cancelRequest" + suffix];
+	var now = require_performance_now(), root = typeof window === "undefined" ? global : window, vendors = ["moz", "webkit"], suffix = "AnimationFrame", raf = root["request" + suffix], caf = root["cancel" + suffix] || root["cancelRequest" + suffix];
 	for (var i = 0; !raf && i < vendors.length; i++) {
 		raf = root[vendors[i] + "Request" + suffix];
 		caf = root[vendors[i] + "Cancel" + suffix] || root[vendors[i] + "CancelRequest" + suffix];
@@ -3988,9 +3970,7 @@ var require_iterators_core = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 	var IS_PURE = require_is_pure();
 	var ITERATOR = wellKnownSymbol("iterator");
 	var BUGGY_SAFARI_ITERATORS = false;
-	var IteratorPrototype;
-	var PrototypeOfArrayIteratorPrototype;
-	var arrayIterator;
+	var IteratorPrototype, PrototypeOfArrayIteratorPrototype, arrayIterator;
 	if ([].keys) {
 		arrayIterator = [].keys();
 		if (!("next" in arrayIterator)) BUGGY_SAFARI_ITERATORS = true;
@@ -11016,7 +10996,7 @@ var require_lib = /* @__PURE__ */ __commonJSMin(((exports) => {
 			_this.pathLength = -1;
 			_this.glyphInfo = null;
 			_this.letterSpacingCache = [];
-			_this.measuresCache = /* @__PURE__ */ new Map([["", 0]]);
+			_this.measuresCache = new Map([["", 0]]);
 			var pathElement = _this.getHrefAttribute().getDefinition();
 			_this.text = _this.getTextFromNode();
 			_this.dataArray = _this.parsePathData(pathElement);

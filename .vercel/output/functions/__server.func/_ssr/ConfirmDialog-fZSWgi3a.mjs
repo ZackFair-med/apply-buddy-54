@@ -1,4 +1,4 @@
-import { I as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
+import { P as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
 import { n as buttonVariants, r as cn } from "./button-PwNqyxv_.mjs";
 import { a as AlertDialogDescription, c as AlertDialogTitle, i as AlertDialogContent, n as AlertDialogAction, o as AlertDialogFooter, r as AlertDialogCancel, s as AlertDialogHeader, t as AlertDialog } from "./alert-dialog-Bz_ok53Q.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/ConfirmDialog-fZSWgi3a.js

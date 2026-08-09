@@ -1,19 +1,16 @@
 import { o as __toESM } from "../_runtime.mjs";
 import { u as require_react } from "./@floating-ui/react-dom+[...].mjs";
-import { A as Primitive, I as require_jsx_runtime, k as createContextScope } from "./@radix-ui/react-alert-dialog+[...].mjs";
+import { P as require_jsx_runtime } from "./@radix-ui/react-alert-dialog+[...].mjs";
+import { t as Primitive } from "./radix-ui__react-primitive.mjs";
+import { t as createContextScope } from "./radix-ui__react-context.mjs";
 //#region node_modules/@radix-ui/react-progress/dist/index.mjs
 var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
 var import_jsx_runtime = require_jsx_runtime();
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", {
-	value,
-	configurable: true
-});
 var PROGRESS_NAME = "Progress";
 var DEFAULT_MAX = 100;
 var [createProgressContext, createProgressScope] = createContextScope(PROGRESS_NAME);
 var [ProgressProvider, useProgressContext] = createProgressContext(PROGRESS_NAME);
-var Progress = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name(function Progress2(props, forwardedRef) {
+var Progress = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeProgress, value: valueProp = null, max: maxProp, getValueLabel = defaultGetValueLabel, ...progressProps } = props;
 	if ((maxProp || maxProp === 0) && !isValidMaxNumber(maxProp)) console.error(getInvalidMaxError(`${maxProp}`, "Progress"));
 	const max = isValidMaxNumber(maxProp) ? maxProp : DEFAULT_MAX;
@@ -37,9 +34,10 @@ var Progress = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name(fu
 			ref: forwardedRef
 		})
 	});
-}, "Progress"));
+});
+Progress.displayName = PROGRESS_NAME;
 var INDICATOR_NAME = "ProgressIndicator";
-var ProgressIndicator = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ __name(function ProgressIndicator2(props, forwardedRef) {
+var ProgressIndicator = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeProgress, ...indicatorProps } = props;
 	const context = useProgressContext(INDICATOR_NAME, __scopeProgress);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
@@ -49,31 +47,26 @@ var ProgressIndicator = /* @__PURE__ */ import_react.forwardRef(/* @__PURE__ */ 
 		...indicatorProps,
 		ref: forwardedRef
 	});
-}, "ProgressIndicator"));
+});
+ProgressIndicator.displayName = INDICATOR_NAME;
 function defaultGetValueLabel(value, max) {
 	return `${Math.round(value / max * 100)}%`;
 }
-__name(defaultGetValueLabel, "defaultGetValueLabel");
 function getProgressState(value, maxValue) {
 	return value == null ? "indeterminate" : value === maxValue ? "complete" : "loading";
 }
-__name(getProgressState, "getProgressState");
 function isNumber(value) {
 	return typeof value === "number";
 }
-__name(isNumber, "isNumber");
 function isValidMaxNumber(max) {
 	return isNumber(max) && !isNaN(max) && max > 0;
 }
-__name(isValidMaxNumber, "isValidMaxNumber");
 function isValidValueNumber(value, max) {
 	return isNumber(value) && !isNaN(value) && value <= max && value >= 0;
 }
-__name(isValidValueNumber, "isValidValueNumber");
 function getInvalidMaxError(propValue, componentName) {
 	return `Invalid prop \`max\` of value \`${propValue}\` supplied to \`${componentName}\`. Only numbers greater than 0 are valid max values. Defaulting to \`${DEFAULT_MAX}\`.`;
 }
-__name(getInvalidMaxError, "getInvalidMaxError");
 function getInvalidValueError(propValue, componentName) {
 	return `Invalid prop \`value\` of value \`${propValue}\` supplied to \`${componentName}\`. The \`value\` prop must be:
   - a positive number
@@ -82,7 +75,6 @@ function getInvalidValueError(propValue, componentName) {
 
 Defaulting to \`null\`.`;
 }
-__name(getInvalidValueError, "getInvalidValueError");
 var Root = Progress;
 var Indicator = ProgressIndicator;
 //#endregion

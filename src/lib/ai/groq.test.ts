@@ -44,7 +44,7 @@ describe("createGroqProvider", () => {
   it("strips the vendor prefix from the model id", () => {
     expect(createGroqProvider("key")).toMatchObject({
       name: "groq",
-      model: "llama-3.1-70b-versatile",
+      model: "llama-3.3-70b-versatile",
     });
     expect(createGroqProvider("key", "mixtral-8x7b-32768").model).toBe("mixtral-8x7b-32768");
   });
@@ -67,6 +67,7 @@ describe("analyzeMatch", () => {
       matchScore: 0,
       strengths: ["a", "b", "c", "d", "e"],
       weaknesses: [],
+      gaps: [],
     });
     expect(requestBody(fetchMock).response_format).toEqual({ type: "json_object" });
   });

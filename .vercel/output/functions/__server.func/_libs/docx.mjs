@@ -802,16 +802,7 @@ function Item(fun, array) {
 	this.array = array;
 }
 function noop() {}
-var browser;
-var process;
-var cachedSetTimeout;
-var cachedClearTimeout;
-var queue;
-var draining;
-var currentQueue;
-var queueIndex;
-var browserExports;
-var process$1;
+var browser, process, cachedSetTimeout, cachedClearTimeout, queue, draining, currentQueue, queueIndex, browserExports, process$1;
 var init_dist = __esmMin((() => {
 	browser = { exports: {} };
 	process = browser.exports = {};
@@ -1067,7 +1058,7 @@ var require_buffer = /* @__PURE__ */ __commonJSMin(((exports) => {
 	if (!Buffer.TYPED_ARRAY_SUPPORT && typeof console !== "undefined" && typeof console.error === "function") console.error("This browser lacks typed array (Uint8Array) support which is required by `buffer` v5.x. Use `buffer` v4.x if you require old browser support.");
 	function typedArraySupport() {
 		try {
-			var arr = /* @__PURE__ */ new Uint8Array(1);
+			var arr = new Uint8Array(1);
 			var proto = { foo: function() {
 				return 42;
 			} };
@@ -19055,7 +19046,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 					n.call(this, e);
 				}
 				e("../utils").inherits(i, n), i.prototype.readData = function(e) {
-					if (this.checkOffset(e), 0 === e) return /* @__PURE__ */ new Uint8Array(0);
+					if (this.checkOffset(e), 0 === e) return new Uint8Array(0);
 					var t = this.data.subarray(this.zero + this.index, this.zero + this.index + e);
 					return this.index += e, t;
 				}, t.exports = i;
@@ -19458,7 +19449,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 					applyCanBeUsed: {
 						uint8array: function() {
 							try {
-								return o.uint8array && 1 === String.fromCharCode.apply(null, /* @__PURE__ */ new Uint8Array(1)).length;
+								return o.uint8array && 1 === String.fromCharCode.apply(null, new Uint8Array(1)).length;
 							} catch (e) {
 								return !1;
 							}
@@ -20149,7 +20140,7 @@ var require_jszip_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 					i = !1;
 				}
 				try {
-					String.fromCharCode.apply(null, /* @__PURE__ */ new Uint8Array(1));
+					String.fromCharCode.apply(null, new Uint8Array(1));
 				} catch (e) {
 					s = !1;
 				}

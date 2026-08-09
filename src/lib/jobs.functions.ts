@@ -40,8 +40,8 @@ export const listJobs = createServerFn({ method: "GET" })
   });
 
 export const getJob = createServerFn({ method: "POST" })
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: job, error } = await context.supabase
       .from("jobs")
@@ -53,8 +53,8 @@ export const getJob = createServerFn({ method: "POST" })
   });
 
 export const createJob = createServerFn({ method: "POST" })
+  .validator((d: unknown) => jobInputSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => jobInputSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("jobs")
@@ -66,10 +66,10 @@ export const createJob = createServerFn({ method: "POST" })
   });
 
 export const updateJob = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({ id: z.string().uuid(), patch: jobInputSchema.partial() }).parse(d),
   )
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("jobs")
@@ -82,8 +82,8 @@ export const updateJob = createServerFn({ method: "POST" })
   });
 
 export const deleteJob = createServerFn({ method: "POST" })
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("jobs").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -91,8 +91,8 @@ export const deleteJob = createServerFn({ method: "POST" })
   });
 
 export const deleteJobs = createServerFn({ method: "POST" })
+  .validator((d: unknown) => z.object({ ids: z.array(z.string().uuid()).min(1).max(500) }).parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ ids: z.array(z.string().uuid()).min(1).max(500) }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("jobs").delete().in("id", data.ids);
     if (error) throw new Error(error.message);
@@ -100,13 +100,13 @@ export const deleteJobs = createServerFn({ method: "POST" })
   });
 
 export const updateJobsStatus = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({
       ids: z.array(z.string().uuid()).min(1).max(500),
       status: jobStatus,
     }).parse(d),
   )
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("jobs")

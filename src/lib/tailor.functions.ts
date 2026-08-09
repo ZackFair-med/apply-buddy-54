@@ -90,16 +90,22 @@ async function guardLimit(
     await enforceAiLimit(supabase, userId, task);
     return null;
   } catch (e) {
-    // Only an actual quota hit turns into an upgrade prompt; a failing plan or
-    // usage query would otherwise masquerade as "limit reached".
-    if (!(e instanceof LimitReachedError)) throw e;
-    return { limitReached: true, feature: task, message: e.message };
+    if (
+      e instanceof LimitReachedError ||
+      (e instanceof Error && e.message.startsWith("LIMIT_REACHED"))
+    ) {
+      return { limitReached: true, feature: task, message: e.message };
+    }
+    if (!(e instanceof Error)) {
+      return { limitReached: true, feature: task, message: "Limit reached" };
+    }
+    throw e;
   }
 }
 
 export const analyzeMatch = createServerFn({ method: "POST" })
+  .validator((d: unknown) => inputSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => inputSchema.parse(d))
   .handler(async ({ data, context }) => {
     const limited = await guardLimit(context.supabase, context.userId, "match_score");
     if (limited) return limited;
@@ -134,8 +140,8 @@ export const analyzeMatch = createServerFn({ method: "POST" })
   });
 
 export const extractKeywords = createServerFn({ method: "POST" })
+  .validator((d: unknown) => inputSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => inputSchema.parse(d))
   .handler(async ({ data, context }) => {
     const limited = await guardLimit(context.supabase, context.userId, "keywords");
     if (limited) return limited;
@@ -158,8 +164,8 @@ export const extractKeywords = createServerFn({ method: "POST" })
   });
 
 export const generateCoverLetter = createServerFn({ method: "POST" })
+  .validator((d: unknown) => letterInputSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => letterInputSchema.parse(d))
   .handler(async ({ data, context }) => {
     const limited = await guardLimit(context.supabase, context.userId, "cover_letter");
     if (limited) return limited;

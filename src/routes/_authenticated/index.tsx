@@ -158,7 +158,7 @@ function DashboardPage() {
       {/* Pipeline */}
       <Card className="border-border shadow-sm">
         <CardContent className="p-6">
-          <h2 className="mb-1 font-serif text-lg text-primary">Job Search Pipeline</h2>
+          <h2 className="mb-1 font-serif text-lg text-primary">Application Pipeline</h2>
           <p className="mb-6 text-[10px] text-muted-foreground">All-time activity</p>
           <div className="space-y-5">
             {pipeline.map((p) => (

@@ -4083,7 +4083,7 @@ var require_html_writer = /* @__PURE__ */ __commonJSMin(((exports) => {
 		}
 		function text(value) {
 			startText();
-			var text = isInPre() ? value : value.replace("\n", "\n  ");
+			var text = isInPre() ? value : value.replace("\n", "\n" + indentation);
 			writer.text(text);
 		}
 		function selfClosing(tagName, attributes) {

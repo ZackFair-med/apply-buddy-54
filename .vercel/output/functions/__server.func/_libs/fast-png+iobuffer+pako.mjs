@@ -17,7 +17,7 @@ var init_IOBuffer = __esmMin((() => {
 	init_text$1();
 	defaultByteLength = 1024 * 8;
 	hostBigEndian = (() => {
-		const array = /* @__PURE__ */ new Uint8Array(4);
+		const array = new Uint8Array(4);
 		const view = new Uint32Array(array.buffer);
 		return !((view[0] = 1) & array[0]);
 	})();
@@ -675,20 +675,20 @@ function DeflateState() {
 	this.good_match = 0;
 	this.nice_match = 0;
 	this.dyn_ltree = new Uint16Array(HEAP_SIZE * 2);
-	this.dyn_dtree = /* @__PURE__ */ new Uint16Array(122);
-	this.bl_tree = /* @__PURE__ */ new Uint16Array(78);
+	this.dyn_dtree = new Uint16Array(122);
+	this.bl_tree = new Uint16Array(78);
 	zero(this.dyn_ltree);
 	zero(this.dyn_dtree);
 	zero(this.bl_tree);
 	this.l_desc = null;
 	this.d_desc = null;
 	this.bl_desc = null;
-	this.bl_count = /* @__PURE__ */ new Uint16Array(16);
-	this.heap = /* @__PURE__ */ new Uint16Array(573);
+	this.bl_count = new Uint16Array(16);
+	this.heap = new Uint16Array(573);
 	zero(this.heap);
 	this.heap_len = 0;
 	this.heap_max = 0;
-	this.depth = /* @__PURE__ */ new Uint16Array(573);
+	this.depth = new Uint16Array(573);
 	zero(this.depth);
 	this.sym_buf = 0;
 	this.lit_bufsize = 0;
@@ -911,8 +911,8 @@ function InflateState() {
 	this.ndist = 0;
 	this.have = 0;
 	this.next = null;
-	this.lens = /* @__PURE__ */ new Uint16Array(320);
-	this.work = /* @__PURE__ */ new Uint16Array(288);
+	this.lens = new Uint16Array(320);
+	this.work = new Uint16Array(288);
 	this.lendyn = null;
 	this.distdyn = null;
 	this.sane = 0;
@@ -2643,11 +2643,11 @@ while (prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan] &
 	};
 	STR_APPLY_UIA_OK = true;
 	try {
-		String.fromCharCode.apply(null, /* @__PURE__ */ new Uint8Array(1));
+		String.fromCharCode.apply(null, new Uint8Array(1));
 	} catch (__) {
 		STR_APPLY_UIA_OK = false;
 	}
-	_utf8len = /* @__PURE__ */ new Uint8Array(256);
+	_utf8len = new Uint8Array(256);
 	for (let q = 0; q < 256; q++) _utf8len[q] = q >= 252 ? 6 : q >= 248 ? 5 : q >= 240 ? 4 : q >= 224 ? 3 : q >= 192 ? 2 : 1;
 	_utf8len[254] = _utf8len[255] = 1;
 	string2buf = (str) => {
@@ -3228,8 +3228,8 @@ while (prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan] &
 		let next;
 		let base = null;
 		let match;
-		const count = /* @__PURE__ */ new Uint16Array(16);
-		const offs = /* @__PURE__ */ new Uint16Array(16);
+		const count = new Uint16Array(16);
+		const offs = new Uint16Array(16);
 		let extra = null;
 		let here_bits, here_op, here_val;
 		for (len = 0; len <= MAXBITS; len++) count[len] = 0;
@@ -3439,8 +3439,8 @@ while (prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan] &
 	virgin = true;
 	fixedtables = (state) => {
 		if (virgin) {
-			lenfix = /* @__PURE__ */ new Int32Array(512);
-			distfix = /* @__PURE__ */ new Int32Array(32);
+			lenfix = new Int32Array(512);
+			distfix = new Int32Array(32);
 			let sym = 0;
 			while (sym < 144) state.lens[sym++] = 8;
 			while (sym < 256) state.lens[sym++] = 9;
@@ -3504,7 +3504,7 @@ while (prev === _win[++scan] && prev === _win[++scan] && prev === _win[++scan] &
 		let last_bits, last_op, last_val;
 		let len;
 		let ret;
-		const hbuf = /* @__PURE__ */ new Uint8Array(4);
+		const hbuf = new Uint8Array(4);
 		let opts;
 		let n;
 		const order = new Uint8Array([
@@ -4693,7 +4693,7 @@ var init_decodeInterlaceNull = __esmMin((() => {
 	init_unfilter();
 	uint16 = new Uint16Array([255]);
 	osIsLittleEndian = new Uint8Array(uint16.buffer)[0] === 255;
-	empty = /* @__PURE__ */ new Uint8Array(0);
+	empty = new Uint8Array(0);
 }));
 //#endregion
 //#region node_modules/fast-png/lib-esm/helpers/signature.js
@@ -4836,7 +4836,7 @@ var init_PngDecoder = __esmMin((() => {
 				width: -1,
 				height: -1,
 				channels: -1,
-				data: /* @__PURE__ */ new Uint8Array(0),
+				data: new Uint8Array(0),
 				depth: 1,
 				text: {}
 			};
@@ -4854,7 +4854,7 @@ var init_PngDecoder = __esmMin((() => {
 			this._hasPalette = false;
 			this._palette = [];
 			this._hasTransparency = false;
-			this._transparency = /* @__PURE__ */ new Uint16Array(0);
+			this._transparency = new Uint16Array(0);
 			this._compressionMethod = CompressionMethod.UNKNOWN;
 			this._filterMethod = FilterMethod.UNKNOWN;
 			this._interlaceMethod = InterlaceMethod.UNKNOWN;
@@ -4992,7 +4992,7 @@ var init_PngDecoder = __esmMin((() => {
 				delayDenominator: this.readUint16(),
 				disposeOp: this.readUint8(),
 				blendOp: this.readUint8(),
-				data: /* @__PURE__ */ new Uint8Array(0)
+				data: new Uint8Array(0)
 			};
 			this._frames.push(image);
 		}

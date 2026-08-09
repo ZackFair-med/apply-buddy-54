@@ -87,6 +87,13 @@ describe("analyzeMatch", () => {
       matchScore: 100,
       strengths: ["a", "b", "c", "d", "e"],
       weaknesses: ["x"],
+      gaps: [
+        {
+          issue: "x",
+          severity: "important",
+          recommendation: "Address or highlight relevant experience for this requirement.",
+        },
+      ],
     });
   });
 
@@ -96,6 +103,7 @@ describe("analyzeMatch", () => {
       matchScore: 0,
       strengths: [],
       weaknesses: [],
+      gaps: [],
     });
   });
 
@@ -136,6 +144,7 @@ describe("extractKeywords", () => {
     await expect(createGeminiProvider("key").extractKeywords(input)).resolves.toEqual({
       matchedKeywords: [],
       missingKeywords: [],
+      suggestedRewrites: [],
     });
   });
 });

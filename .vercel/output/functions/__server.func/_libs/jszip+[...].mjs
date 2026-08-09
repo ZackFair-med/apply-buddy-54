@@ -2042,7 +2042,7 @@ var require_utils = /* @__PURE__ */ __commonJSMin(((exports) => {
 			*/
 			uint8array: (function() {
 				try {
-					return support.uint8array && String.fromCharCode.apply(null, /* @__PURE__ */ new Uint8Array(1)).length === 1;
+					return support.uint8array && String.fromCharCode.apply(null, new Uint8Array(1)).length === 1;
 				} catch (e) {
 					return false;
 				}
@@ -4907,7 +4907,7 @@ var require_strings = /* @__PURE__ */ __commonJSMin(((exports) => {
 		STR_APPLY_OK = false;
 	}
 	try {
-		String.fromCharCode.apply(null, /* @__PURE__ */ new Uint8Array(1));
+		String.fromCharCode.apply(null, new Uint8Array(1));
 	} catch (__) {
 		STR_APPLY_UIA_OK = false;
 	}
@@ -5973,8 +5973,7 @@ var require_inflate$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 		return inflateInit2(strm, DEF_WBITS);
 	}
 	var virgin = true;
-	var lenfix;
-	var distfix;
+	var lenfix, distfix;
 	function fixedtables(state) {
 		if (virgin) {
 			var sym;
@@ -8155,7 +8154,7 @@ var require_Uint8ArrayReader = /* @__PURE__ */ __commonJSMin(((exports, module) 
 	*/
 	Uint8ArrayReader.prototype.readData = function(size) {
 		this.checkOffset(size);
-		if (size === 0) return /* @__PURE__ */ new Uint8Array(0);
+		if (size === 0) return new Uint8Array(0);
 		var result = this.data.subarray(this.zero + this.index, this.zero + this.index + size);
 		this.index += size;
 		return result;

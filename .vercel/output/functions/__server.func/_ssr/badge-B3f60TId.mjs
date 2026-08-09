@@ -1,6 +1,6 @@
 import "../_runtime.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
-import { I as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
+import { P as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
 import { t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { r as cn } from "./button-PwNqyxv_.mjs";
 require_react();

@@ -61,9 +61,7 @@ var require_node = /* @__PURE__ */ __commonJSMin(((exports) => {
 			postMessage: NOP
 		};
 	};
-	var u8 = Uint8Array;
-	var u16 = Uint16Array;
-	var i32 = Int32Array;
+	var u8 = Uint8Array, u16 = Uint16Array, i32 = Int32Array;
 	var fleb = new u8([
 		0,
 		0,
@@ -163,13 +161,9 @@ var require_node = /* @__PURE__ */ __commonJSMin(((exports) => {
 			r
 		};
 	};
-	var _a = freb(fleb, 2);
-	var fl = _a.b;
-	var revfl = _a.r;
+	var _a = freb(fleb, 2), fl = _a.b, revfl = _a.r;
 	fl[28] = 258, revfl[258] = 28;
-	var _b = freb(fdeb, 0);
-	var fd = _b.b;
-	var revfd = _b.r;
+	var _b = freb(fdeb, 0), fd = _b.b, revfd = _b.r;
 	var rev = new u16(32768);
 	for (var i = 0; i < 32768; ++i) {
 		var x = (i & 43690) >> 1 | (i & 21845) << 1;
@@ -207,10 +201,8 @@ var require_node = /* @__PURE__ */ __commonJSMin(((exports) => {
 	for (var i = 280; i < 288; ++i) flt[i] = 8;
 	var fdt = new u8(32);
 	for (var i = 0; i < 32; ++i) fdt[i] = 5;
-	var flm = /*#__PURE__*/ hMap(flt, 9, 0);
-	var flrm = /*#__PURE__*/ hMap(flt, 9, 1);
-	var fdm = /*#__PURE__*/ hMap(fdt, 5, 0);
-	var fdrm = /*#__PURE__*/ hMap(fdt, 5, 1);
+	var flm = /*#__PURE__*/ hMap(flt, 9, 0), flrm = /*#__PURE__*/ hMap(flt, 9, 1);
+	var fdm = /*#__PURE__*/ hMap(fdt, 5, 0), fdrm = /*#__PURE__*/ hMap(fdt, 5, 1);
 	var max = function(a) {
 		var m = a[0];
 		for (var i = 1; i < a.length; ++i) if (a[i] > m) m = a[i];
@@ -692,7 +684,7 @@ var require_node = /* @__PURE__ */ __commonJSMin(((exports) => {
 		return slc(o, 0, pre + shft(pos) + post);
 	};
 	var crct = /*#__PURE__*/ (function() {
-		var t = /* @__PURE__ */ new Int32Array(256);
+		var t = new Int32Array(256);
 		for (var i = 0; i < 256; ++i) {
 			var c = i, k = 9;
 			while (--k) c = (c & 1 && -306674912) ^ c >>> 1;

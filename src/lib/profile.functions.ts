@@ -27,8 +27,8 @@ const updateSchema = z.object({
 });
 
 export const updateProfile = createServerFn({ method: "POST" })
+  .validator((d: unknown) => updateSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => updateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const patch: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(data)) {

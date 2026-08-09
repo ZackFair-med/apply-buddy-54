@@ -7,14 +7,13 @@
 
 Job hunting for most professionals is scattered across browser tabs, WhatsApp notes, and a dozen versions of the same CV saved as "CV_final_v3_ACTUAL.pdf." Every application means re-reading a job description, guessing whether your CV is even a good fit, rewriting a cover letter from scratch, and then forgetting which company you already applied to.
 
-ApplyPilot is a single place to store your CV(s), search live job listings, track every application through a pipeline (Saved → Applied → Interview → Offer → Rejected), and get an AI-generated fit score, keyword gaps, and a tailored cover letter for any job description you paste in — before you apply. It's built for anyone actively job-hunting, but the AI Tailor was designed with my own use case in mind: a Pharm.D graduate applying to clinical pharmacist roles.
+ApplyPilot is a single place to store your CV(s), track every application through a pipeline (Saved → Applied → Interview → Offer → Rejected), and get an AI-generated fit score, keyword gaps, and a tailored cover letter for any job description you paste in — before you apply. It's built for anyone actively job-hunting, but the AI Tailor was designed with my own use case in mind: a Pharm.D graduate applying to clinical pharmacist roles.
 
 ## Features
 
 - **Auth** — email/password and Google sign-in (Supabase Auth)
 - **Dashboard** — target role, target salary range, target date, weekly application goal tracker, and an at-a-glance pipeline summary
 - **CV vault** — upload multiple CV versions (PDF/DOCX) with labels and tags; text is extracted once on upload and reused for every AI call, so re-analyzing a job doesn't re-parse the file
-- **Job Search** — search live listings by keyword, location, and country (powered by Adzuna), filter by salary range, job type, and category, and bookmark/save straight into your tracker
 - **Tracker** — full application pipeline with status, company, position, date saved, follow-up date, which CV version was used, and a link back to the original listing
 - **AI Assistant (AI Tailor)** — pick a CV, paste a job description, and run:
   - **Match score** (0–100) with a breakdown of strengths and weaknesses against the job description
@@ -104,14 +103,12 @@ Results are clamped/sanitized in code after parsing (match score forced into 0�
 
 | Purpose | Tool/Service |
 |---|---|
-| Frontend framework | React 19 + TanStack Start (Vite 7, SSR + server functions) |
+| Frontend framework | React 19 + TanStack Start (Vite 8, SSR + server functions) |
 | Language | TypeScript |
 | Styling | Tailwind CSS v4 |
 | Backend / DB / Auth / Storage | Supabase (Postgres, Auth, Storage) |
 | AI provider | Groq Cloud API — Llama model |
-| Job listings | Adzuna API |
 | Hosting | Vercel |
-| Initial scaffolding | Lovable (later exported to a standalone GitHub repo) |
 
 ## Screenshots
 
@@ -129,9 +126,6 @@ Results are clamped/sanitized in code after parsing (match score forced into 0�
 
 **Application tracker**
 ![Tracker](screenshots/Tracker.jpeg)
-
-**Job search (Adzuna-powered)**
-![Job Search](screenshots/Job-search.png)
 
 ## How to run it locally
 
@@ -155,9 +149,6 @@ SUPABASE_PUBLISHABLE_KEY=...
 AI_PROVIDER=groq
 AI_API_KEY=...          # Groq API key
 AI_MODEL=llama-3.1-8b-instant   # Groq model used in production
-JOB_SEARCH_PROVIDER=adzuna
-ADZUNA_APP_ID=...
-ADZUNA_APP_KEY=...
 ```
 
 No API keys are committed to the repo — all secrets are set as environment variables in Vercel for the live deployment.
