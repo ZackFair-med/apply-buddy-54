@@ -79,6 +79,7 @@ function CvsPage() {
   const uploadMut = useMutation({
     mutationFn: async () => {
       if (!file) throw new Error("Pick a file");
+      if (file.size > 5 * 1024 * 1024) throw new Error("File exceeds 5MB limit");
       const base64 = await fileToBase64(file);
       return upload({
         data: {
@@ -314,4 +315,3 @@ function CvsPage() {
     </div>
   );
 }
-

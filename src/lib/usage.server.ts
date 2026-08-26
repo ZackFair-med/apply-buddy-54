@@ -77,15 +77,18 @@ export async function enforceAiLimit(
       limit = limits.keywordsPerDay;
       window = "day";
       break;
-    case "cover_letter":
-      if (limits.coverLetterPerDay != null) {
-        limit = limits.coverLetterPerDay;
+    case "cover_letter": {
+      const perDay = limits.coverLetterPerDay;
+      const perWeek = (limits as { coverLetterPerWeek?: number | null }).coverLetterPerWeek ?? null;
+      if (perDay != null) {
+        limit = perDay;
         window = "day";
       } else {
-        limit = limits.coverLetterPerWeek;
+        limit = perWeek;
         window = "week";
       }
       break;
+    }
   }
 
   if (limit == null) return plan; // unlimited

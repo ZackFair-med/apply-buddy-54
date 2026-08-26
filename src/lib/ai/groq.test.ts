@@ -33,6 +33,7 @@ const input = {
 
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
+  vi.spyOn(console, "warn").mockImplementation(() => {});
 });
 
 afterEach(() => {
@@ -41,12 +42,12 @@ afterEach(() => {
 });
 
 describe("createGroqProvider", () => {
-  it("strips the vendor prefix from the model id", () => {
+  it("preserves exact namespaced Groq model ids", () => {
     expect(createGroqProvider("key")).toMatchObject({
       name: "groq",
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
     });
-    expect(createGroqProvider("key", "mixtral-8x7b-32768").model).toBe("mixtral-8x7b-32768");
+    expect(createGroqProvider("key", "qwen/qwen3.6-27b").model).toBe("qwen/qwen3.6-27b");
   });
 
   it("authenticates with a bearer token", async () => {
@@ -59,7 +60,7 @@ describe("createGroqProvider", () => {
 });
 
 describe("analyzeMatch", () => {
-  it("clamps the score, caps bullets and requests JSON", async () => {
+  it("clamps the score, caps bullets and requests strict structured JSON", async () => {
     const fetchMock = mockFetch(
       reply(JSON.stringify({ matchScore: -5, strengths: ["a", "b", "c", "d", "e", "f"] })),
     );
@@ -69,7 +70,17 @@ describe("analyzeMatch", () => {
       weaknesses: [],
       gaps: [],
     });
-    expect(requestBody(fetchMock).response_format).toEqual({ type: "json_object" });
+    expect(requestBody(fetchMock).response_format).toMatchObject({
+      type: "json_schema",
+      json_schema: { name: "match_analysis", strict: true },
+    });
+    expect(requestBody(fetchMock)).toMatchObject({
+      max_completion_tokens: 1536,
+      reasoning_effort: "low",
+      reasoning_format: "hidden",
+      temperature: 0,
+    });
+    expect(requestBody(fetchMock)).not.toHaveProperty("max_tokens");
   });
 
   it("unwraps fenced JSON", async () => {
@@ -95,6 +106,17 @@ describe("extractKeywords", () => {
     expect(result.matchedKeywords).toHaveLength(12);
     expect(result.missingKeywords).toHaveLength(12);
   });
+
+  it("uses a strict schema for CV-improvement JSON", async () => {
+    const fetchMock = mockFetch(
+      reply(JSON.stringify({ matchedKeywords: [], missingKeywords: [], suggestedRewrites: [] })),
+    );
+    await createGroqProvider("key").extractKeywords(input);
+    expect(requestBody(fetchMock).response_format).toMatchObject({
+      type: "json_schema",
+      json_schema: { name: "keyword_analysis", strict: true },
+    });
+  });
 });
 
 describe("generateCoverLetter", () => {
@@ -108,19 +130,94 @@ describe("generateCoverLetter", () => {
     expect(requestBody(fetchMock).messages[0].content).toContain(expected);
   });
 
-  it("truncates a long CV in the prompt", async () => {
+  it("leaves a CV shorter than 10,000 characters untouched", async () => {
     const fetchMock = mockFetch(reply("letter"));
+    const cvText = "z".repeat(3500);
+    await createGroqProvider("key").generateCoverLetter({ cvText, jobDescription: "JD" });
+    const user = requestBody(fetchMock).messages[1].content as string;
+    expect(user).toContain(`CANDIDATE CV:\n${cvText}`);
+    expect(user).not.toContain("[... CV truncated for performance ...]");
+  });
+
+  it("truncates beyond 10,000 characters at a nearby newline and keeps the notice", async () => {
+    const fetchMock = mockFetch(reply("letter"));
+    const retained = "z".repeat(9800);
     await createGroqProvider("key").generateCoverLetter({
-      cvText: "z".repeat(3500),
+      cvText: `${retained}\n${"x".repeat(500)}`,
       jobDescription: "JD",
     });
     const user = requestBody(fetchMock).messages[1].content as string;
+    expect(user).toContain(`CANDIDATE CV:\n${retained}\n[... CV truncated for performance ...]`);
+    expect(user).not.toContain("x");
     expect(user).toContain("[... CV truncated for performance ...]");
-    expect(user).not.toContain("z".repeat(3001));
   });
 });
 
 describe("transport errors", () => {
+  it("retries once with the fallback when the primary model is unavailable", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        text: async () => JSON.stringify({ error: { code: "model_decommissioned" } }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ choices: [{ message: { content: "letter" } }] }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      createGroqProvider("key", "openai/gpt-oss-120b", "openai/gpt-oss-20b").generateCoverLetter(
+        input,
+      ),
+    ).resolves.toBe("letter");
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).model).toBe("openai/gpt-oss-120b");
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).model).toBe("openai/gpt-oss-20b");
+  });
+
+  it("retries once with the fallback after Groq rejects generated JSON", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        text: async () => JSON.stringify({ error: { code: "json_validate_failed" } }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({ matchScore: 70, strengths: [], gaps: [] }),
+              },
+            },
+          ],
+        }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      createGroqProvider("key", "openai/gpt-oss-120b", "openai/gpt-oss-20b").analyzeMatch(input),
+    ).resolves.toMatchObject({ matchScore: 70 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).model).toBe("openai/gpt-oss-20b");
+  });
+
+  it("does not fall back for an unrelated bad request", async () => {
+    const fetchMock = mockFetch({ ok: false, status: 400, text: "invalid request" });
+    await expect(createGroqProvider("key").generateCoverLetter(input)).rejects.toThrow(
+      /Groq error 400: invalid request/,
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it.each([
     [429, /Groq rate limit reached/],
     [401, /Groq API key rejected/],

@@ -152,23 +152,6 @@ var ArrowUpDown = createLucideIcon("arrow-up-down", [
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
-var Briefcase = createLucideIcon("briefcase", [["path", {
-	d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16",
-	key: "jecpp"
-}], ["rect", {
-	width: "20",
-	height: "14",
-	x: "2",
-	y: "6",
-	rx: "2",
-	key: "i6l2r4"
-}]]);
-/**
-* @license lucide-react v0.575.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
 var CalendarDays = createLucideIcon("calendar-days", [
 	["path", {
 		d: "M8 2v4",
@@ -261,6 +244,34 @@ var ChevronUp = createLucideIcon("chevron-up", [["path", {
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
+var CircleAlert = createLucideIcon("circle-alert", [
+	["circle", {
+		cx: "12",
+		cy: "12",
+		r: "10",
+		key: "1mglay"
+	}],
+	["line", {
+		x1: "12",
+		x2: "12",
+		y1: "8",
+		y2: "12",
+		key: "1pkeuh"
+	}],
+	["line", {
+		x1: "12",
+		x2: "12.01",
+		y1: "16",
+		y2: "16",
+		key: "4dfq90"
+	}]
+]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
 var Circle = createLucideIcon("circle", [["circle", {
 	cx: "12",
 	cy: "12",
@@ -338,6 +349,30 @@ var ExternalLink = createLucideIcon("external-link", [
 	["path", {
 		d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6",
 		key: "a6xqqp"
+	}]
+]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var FilePenLine = createLucideIcon("file-pen-line", [
+	["path", {
+		d: "M14.364 13.634a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506l4.013-4.009a1 1 0 0 0-3.004-3.004z",
+		key: "ukzhwg"
+	}],
+	["path", {
+		d: "M14.487 7.858A1 1 0 0 1 14 7V2",
+		key: "1klhew"
+	}],
+	["path", {
+		d: "M20 19.645V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l2.516 2.516",
+		key: "rxaxab"
+	}],
+	["path", {
+		d: "M8 18h1",
+		key: "13wk12"
 	}]
 ]);
 /**
@@ -509,6 +544,26 @@ var LogOut = createLucideIcon("log-out", [
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
+var MailCheck = createLucideIcon("mail-check", [
+	["path", {
+		d: "M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8",
+		key: "12jkf8"
+	}],
+	["path", {
+		d: "m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7",
+		key: "1ocrg3"
+	}],
+	["path", {
+		d: "m16 19 2 2 4-4",
+		key: "1b14m6"
+	}]
+]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
 var PanelLeft = createLucideIcon("panel-left", [["rect", {
 	width: "18",
 	height: "18",
@@ -672,4 +727,4 @@ var X = createLucideIcon("x", [["path", {
 	key: "d8bk6v"
 }]]);
 //#endregion
-export { ChevronRight as C, Briefcase as D, CalendarDays as E, ArrowUpDown as O, ChevronUp as S, Check as T, ExternalLink as _, Tags as a, Clock as b, Pencil as c, LoaderCircle as d, ListTodo as f, FileText as g, Gauge as h, Trash2 as i, ArrowRight as k, PanelLeft as l, History as m, User as n, Sparkles as o, LayoutDashboard as p, Upload as r, Plus as s, X as t, LogOut as u, Download as v, ChevronDown as w, Circle as x, Copy as y };
+export { ArrowUpDown as A, Circle as C, ChevronDown as D, ChevronRight as E, Check as O, Clock as S, ChevronUp as T, FileText as _, Tags as a, Download as b, Pencil as c, LogOut as d, LoaderCircle as f, Gauge as g, History as h, Trash2 as i, ArrowRight as j, CalendarDays as k, PanelLeft as l, LayoutDashboard as m, User as n, Sparkles as o, ListTodo as p, Upload as r, Plus as s, X as t, MailCheck as u, FilePenLine as v, CircleAlert as w, Copy as x, ExternalLink as y };

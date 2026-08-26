@@ -126,11 +126,11 @@ describe("uploadCv", () => {
     expect(storage.upload).not.toHaveBeenCalled();
   });
 
-  it("rejects files over 8MB", async () => {
+  it("rejects files over 5MB", async () => {
     const { context } = contextWith();
-    const big = { ...upload, base64: Buffer.alloc(8 * 1024 * 1024 + 1).toString("base64") };
+    const big = { ...upload, base64: Buffer.alloc(5 * 1024 * 1024 + 1).toString("base64") };
     await expect(callServerFn(uploadCv, { data: big, context })).rejects.toThrow(
-      "File exceeds 8MB limit",
+      "File exceeds 5MB limit",
     );
   });
 

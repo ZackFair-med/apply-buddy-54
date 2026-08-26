@@ -126,6 +126,7 @@ describe("analyzeMatch", () => {
     expect(requestBody(fetchMock).generationConfig).toMatchObject({
       responseMimeType: "application/json",
       maxOutputTokens: 512,
+      temperature: 0,
     });
   });
 });
@@ -170,15 +171,26 @@ describe("generateCoverLetter", () => {
     expect(body.generationConfig.responseMimeType).toBeUndefined();
   });
 
-  it("truncates a long CV and labels unspecified job metadata", async () => {
+  it("leaves a CV shorter than 10,000 characters untouched", async () => {
     const fetchMock = queueFetch(googleReply("letter"));
+    const cvText = "z".repeat(3500);
+    await createGeminiProvider("key").generateCoverLetter({ cvText, jobDescription: "JD" });
+    const user = requestBody(fetchMock).contents[0].parts[0].text as string;
+    expect(user).toContain(`CANDIDATE CV:\n${cvText}`);
+    expect(user).not.toContain("[... CV truncated for performance ...]");
+  });
+
+  it("truncates beyond 10,000 characters at a nearby newline and keeps the notice", async () => {
+    const fetchMock = queueFetch(googleReply("letter"));
+    const retained = "z".repeat(9800);
     await createGeminiProvider("key").generateCoverLetter({
-      cvText: "z".repeat(3500),
+      cvText: `${retained}\n${"x".repeat(500)}`,
       jobDescription: "JD",
     });
     const user = requestBody(fetchMock).contents[0].parts[0].text as string;
+    expect(user).toContain(`CANDIDATE CV:\n${retained}\n[... CV truncated for performance ...]`);
+    expect(user).not.toContain("x");
     expect(user).toContain("[... CV truncated for performance ...]");
-    expect(user).not.toContain("z".repeat(3001));
     expect(user).toContain("JOB TITLE: (unspecified)");
     expect(user).toContain("COMPANY: (unspecified)");
   });
@@ -245,6 +257,12 @@ describe("Lovable gateway transport", () => {
     const fetchMock = queueFetch(gatewayReply("{}"));
     await createGeminiProvider("key").extractKeywords(input);
     expect(requestBody(fetchMock).response_format).toEqual({ type: "json_object" });
+  });
+
+  it("uses deterministic-focused temperature for match analysis through the gateway", async () => {
+    const fetchMock = queueFetch(gatewayReply("{}"));
+    await createGeminiProvider("key").analyzeMatch(input);
+    expect(requestBody(fetchMock).temperature).toBe(0);
   });
 
   it.each([

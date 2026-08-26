@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { completeAuthCallback, readAuthLinkFromUrl } from "@/lib/auth-link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ApplyPilotLogo } from "@/components/ApplyPilotLogo";
 
 export const Route = createFileRoute("/auth/callback")({
   ssr: false,
@@ -75,6 +76,7 @@ function AuthCallback() {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
+            <ApplyPilotLogo className="mb-2 justify-center" markClassName="h-9 w-9" />
             <CardTitle className="font-serif text-2xl">Sign-in link problem</CardTitle>
             <CardDescription>{error}</CardDescription>
           </CardHeader>
@@ -89,7 +91,8 @@ function AuthCallback() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4">
+      <ApplyPilotLogo markClassName="h-9 w-9" />
       <p className="text-sm text-muted-foreground">Signing you in…</p>
     </div>
   );

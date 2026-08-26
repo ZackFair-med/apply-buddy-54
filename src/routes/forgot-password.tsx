@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { describeAuthError } from "@/lib/auth-errors";
+import { ApplyPilotLogo } from "@/components/ApplyPilotLogo";
 
 export const Route = createFileRoute("/forgot-password")({
   ssr: false,
@@ -69,6 +70,7 @@ function ForgotPassword() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
+          <ApplyPilotLogo className="mb-2 justify-center" markClassName="h-9 w-9" />
           <CardTitle className="font-serif text-2xl">
             {sent ? "Check your email" : "Reset your password"}
           </CardTitle>

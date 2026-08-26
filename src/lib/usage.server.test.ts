@@ -101,27 +101,27 @@ describe("enforceAiLimit", () => {
   it("throws once the free daily match-score limit is reached", async () => {
     const { supabase } = createFakeSupabase({
       plan: "free",
-      counts: { usage_logs: { count: 3, error: null } },
+      counts: { usage_logs: { count: 10, error: null } },
     });
     const error = await enforceAiLimit(supabase, "user-1", "match_score").catch((e) => e);
     expect(error).toBeInstanceOf(LimitReachedError);
     expect(error).toMatchObject({
       code: "LIMIT_REACHED",
       task: "match_score",
-      limit: 3,
+      limit: 10,
       window: "day",
       plan: "free",
     });
-    expect(error.message).toContain("match_score limit of 3 per day");
+    expect(error.message).toContain("match_score limit of 10 per day");
   });
 
-  it("meters free cover letters over a rolling week", async () => {
+  it("meters free cover letters daily", async () => {
     const { supabase, calls } = createFakeSupabase({
       plan: "free",
       counts: { usage_logs: { count: 0, error: null } },
     });
     await enforceAiLimit(supabase, "user-1", "cover_letter");
-    expect(calls[1].gte).toEqual({ column: "created_at", value: "2026-03-03T15:30:00.000Z" });
+    expect(calls[1].gte).toEqual({ column: "created_at", value: "2026-03-10T00:00:00.000Z" });
     expect(calls[1].filters).toEqual([
       { column: "user_id", value: "user-1" },
       { column: "task_type", value: "cover_letter" },
@@ -176,14 +176,14 @@ describe("enforceCvLimit", () => {
     });
   });
 
-  it("throws with a singular message at the free limit", async () => {
+  it("throws with a plural message at the free limit", async () => {
     const { supabase } = createFakeSupabase({
       plan: "free",
-      counts: { cvs: { count: 1, error: null } },
+      counts: { cvs: { count: 3, error: null } },
     });
     const error = await enforceCvLimit(supabase, "user-1").catch((e) => e);
     expect(error).toBeInstanceOf(CvLimitReachedError);
-    expect(error.message).toContain("up to 1 CV on the free plan");
+    expect(error.message).toContain("up to 3 CVs on the free plan");
   });
 
   it("throws with a plural message at the paid limit", async () => {

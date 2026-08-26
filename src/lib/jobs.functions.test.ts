@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { callServerFn, reactStartMock, validateInput } from "@/test/server-fn";
+import { callServerFn, validateInput } from "@/test/server-fn";
 
 vi.mock("@tanstack/react-start", async () => (await import("@/test/server-fn")).reactStartMock());
 

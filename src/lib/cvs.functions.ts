@@ -40,7 +40,7 @@ export const uploadCv = createServerFn({ method: "POST" })
     }
     const { extractCvText } = await import("./cv-parser.server");
     const bytes = Buffer.from(data.base64, "base64");
-    if (bytes.byteLength > 8 * 1024 * 1024) throw new Error("File exceeds 8MB limit");
+    if (bytes.byteLength > 5 * 1024 * 1024) throw new Error("File exceeds 5MB limit");
 
 
 

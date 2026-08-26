@@ -14,13 +14,13 @@ describe("getPlanLimits", () => {
 });
 
 describe("PLAN_LIMITS", () => {
-  it("caps free usage and meters cover letters weekly", () => {
+  it("caps public-beta usage and meters cover letters daily", () => {
     expect(PLAN_LIMITS.free).toEqual({
-      cvProfiles: 1,
-      matchScorePerDay: 3,
-      keywordsPerDay: 2,
-      coverLetterPerWeek: 1,
-      coverLetterPerDay: null,
+      cvProfiles: 3,
+      matchScorePerDay: 10,
+      keywordsPerDay: 10,
+      coverLetterPerWeek: null,
+      coverLetterPerDay: 5,
     });
   });
 

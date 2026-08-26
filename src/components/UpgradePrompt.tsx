@@ -7,19 +7,19 @@ export type UpgradeFeature = "match_score" | "keywords" | "cover_letter" | "cv_p
 const COPY: Record<UpgradeFeature, { title: string; body: string }> = {
   match_score: {
     title: "You've used today's free match scores",
-    body: "Free plan includes 3 match analyses per day. Upgrade for unlimited daily match scores plus keyword extraction.",
+    body: "Free plan includes 10 match analyses per day. Upgrade for unlimited daily match scores plus keyword extraction.",
   },
   keywords: {
     title: "You've used today's free keyword runs",
-    body: "Free plan includes 2 keyword extractions per day. Upgrade for unlimited keyword analysis across every job.",
+    body: "Free plan includes 10 CV improvement runs per day. Upgrade for unlimited keyword analysis across every job.",
   },
   cover_letter: {
-    title: "You've used this week's free cover letter",
-    body: "Free plan includes 1 cover letter per week. Upgrade for 15/day plus tone regeneration and PDF export.",
+    title: "You've used today's free cover letters",
+    body: "Free plan includes 5 cover letters per day. Upgrade for 15/day plus tone regeneration and PDF export.",
   },
   cv_profiles: {
     title: "You've reached your CV limit",
-    body: "Free plan stores 1 CV. Upgrade to keep up to 5 tailored CV versions.",
+    body: "Free plan stores up to 3 CVs. Upgrade to keep up to 5 CV profiles.",
   },
 };
 

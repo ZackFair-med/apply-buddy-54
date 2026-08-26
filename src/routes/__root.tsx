@@ -8,17 +8,19 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "../components/ui/sonner";
 import { useAuthHashRedirect } from "../hooks/use-auth-hash-redirect";
 import { processAuthLinkFromUrl } from "../lib/auth-link";
+import { ApplyPilotLogo } from "../components/ApplyPilotLogo";
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
+        <ApplyPilotLogo className="mb-8 justify-center" markClassName="h-10 w-10" />
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -44,6 +46,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
+        <ApplyPilotLogo className="mb-8 justify-center" markClassName="h-10 w-10" />
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           This page didn't load
         </h1>
@@ -83,21 +86,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "ApplyPilot" },
-      { name: "description", content: "ApplyPilot is a web app for managing job applications, tailoring CVs, and generating cover letters." },
+      { name: "description", content: "Compare your CV with a job description, understand real strengths and gaps, improve supported experience, and create a tailored cover letter." },
       { name: "author", content: "ApplyPilot" },
       { property: "og:title", content: "ApplyPilot" },
-      { property: "og:description", content: "ApplyPilot is a web app for managing job applications, tailoring CVs, and generating cover letters." },
+      { property: "og:description", content: "Evidence-grounded CV matching, factual rewrites, tailored cover letters, and application tracking." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "ApplyPilot" },
-      { name: "twitter:description", content: "ApplyPilot is a web app for managing job applications, tailoring CVs, and generating cover letters." },
+      { name: "twitter:description", content: "Evidence-grounded CV matching, factual rewrites, tailored cover letters, and application tracking." },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/applypilot-mark.svg", type: "image/svg+xml" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

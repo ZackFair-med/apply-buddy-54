@@ -7,45 +7,146 @@ import type {
 
 /**
  * Uses Groq Cloud API for ultra-fast LLM inference.
- * Groq models: groq/llama-3.3-70b-versatile, groq/llama-3.1-8b-instant, etc.
+ * Groq model IDs are passed through exactly as configured, including namespaces.
  */
-export function createGroqProvider(apiKey: string, model = "groq/llama-3.3-70b-versatile"): AIProvider {
-  const modelId = model.includes("/") ? model.split("/")[1] : model;
+export function createGroqProvider(
+  apiKey: string,
+  model = "openai/gpt-oss-120b",
+  fallbackModel = process.env.AI_FALLBACK_MODEL?.trim() || "openai/gpt-oss-20b",
+): AIProvider {
+  const CV_CONTEXT_LIMIT = 10_000;
+  const TRUNCATION_BOUNDARY_WINDOW = 400;
+  const modelId = model.trim();
+  const matchAnalysisSchema = {
+    type: "object",
+    properties: {
+      matchScore: { type: "integer" },
+      strengths: { type: "array", items: { type: "string" } },
+      gaps: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            issue: { type: "string" },
+            severity: { type: "string", enum: ["critical", "important", "minor"] },
+            recommendation: { type: "string" },
+          },
+          required: ["issue", "severity", "recommendation"],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: ["matchScore", "strengths", "gaps"],
+    additionalProperties: false,
+  };
+  const keywordAnalysisSchema = {
+    type: "object",
+    properties: {
+      matchedKeywords: { type: "array", items: { type: "string" } },
+      missingKeywords: { type: "array", items: { type: "string" } },
+      suggestedRewrites: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            original: { type: "string" },
+            targetKeywords: { type: "array", items: { type: "string" } },
+            suggested: { type: "string" },
+          },
+          required: ["original", "targetKeywords", "suggested"],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: ["matchedKeywords", "missingKeywords", "suggestedRewrites"],
+    additionalProperties: false,
+  };
+
+  function isModelAvailabilityError(status: number, body: string): boolean {
+    if (status !== 400 && status !== 404) return false;
+
+    return /decommission|retired|model[_ -]?not[_ -]?found|model[^\n]*(?:does not exist|is not available|unavailable|not supported)|(?:unknown|invalid)[^\n]*model/i.test(
+      body,
+    );
+  }
+
+  function isJsonGenerationError(status: number, body: string): boolean {
+    return status === 400 && /json[_ -]?(?:validate|validation)[_ -]?failed/i.test(body);
+  }
 
   async function callGroq(opts: {
     system: string;
     user: string;
     maxTokens: number;
-    json: boolean;
+    jsonSchema?: { name: string; schema: Record<string, unknown> };
+    temperature?: number;
   }): Promise<string> {
-    const body = JSON.stringify({
-      model: modelId,
-      messages: [
-        { role: "system", content: opts.system },
-        { role: "user", content: opts.user },
-      ],
-      temperature: 0.4,
-      max_tokens: opts.maxTokens,
-      ...(opts.json ? { response_format: { type: "json_object" } } : {}),
-    });
+    async function request(selectedModel: string) {
+      const isGptOss = selectedModel.startsWith("openai/gpt-oss-");
+      const body = JSON.stringify({
+        model: selectedModel,
+        messages: [
+          { role: "system", content: opts.system },
+          { role: "user", content: opts.user },
+        ],
+        temperature: opts.temperature ?? 0.4,
+        max_completion_tokens: opts.maxTokens,
+        ...(isGptOss
+          ? {
+              reasoning_effort: "low",
+              reasoning_format: "hidden",
+            }
+          : {}),
+        ...(opts.jsonSchema
+          ? {
+              response_format: {
+                type: "json_schema",
+                json_schema: {
+                  name: opts.jsonSchema.name,
+                  strict: true,
+                  schema: opts.jsonSchema.schema,
+                },
+              },
+            }
+          : {}),
+      });
 
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "authorization": `Bearer ${apiKey}`,
-      },
-      body,
-    });
+      return await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "authorization": `Bearer ${apiKey}`,
+        },
+        body,
+      });
+    }
+
+    let selectedModel = modelId;
+    let res = await request(selectedModel);
+    let errorBody = res.ok ? "" : await res.text();
+
+    if (
+      !res.ok &&
+      fallbackModel &&
+      fallbackModel !== selectedModel &&
+      (isModelAvailabilityError(res.status, errorBody) ||
+        isJsonGenerationError(res.status, errorBody))
+    ) {
+      console.warn(
+        `Groq request with "${selectedModel}" failed safely; retrying with "${fallbackModel}".`,
+      );
+      selectedModel = fallbackModel;
+      res = await request(selectedModel);
+      errorBody = res.ok ? "" : await res.text();
+    }
 
     if (!res.ok) {
-      const t = await res.text();
       if (res.status === 429) throw new Error("Groq rate limit reached. Try again in a moment.");
       if (res.status === 401 || res.status === 403)
         throw new Error(
           "Groq API key rejected. Check AI_API_KEY in your deployment environment (must be a valid Groq Cloud API key).",
         );
-      throw new Error(`Groq error ${res.status}: ${t.slice(0, 300)}`);
+      throw new Error(`Groq error ${res.status}: ${errorBody.slice(0, 300)}`);
     }
 
     const data = (await res.json()) as {
@@ -73,10 +174,27 @@ export function createGroqProvider(apiKey: string, model = "groq/llama-3.3-70b-v
   }
 
   function contextBlock(input: TailorInput): string {
-    // Optimize context: truncate CV to first 3000 chars for efficiency
-    const cvPreview = input.cvText.length > 3000 
-      ? input.cvText.slice(0, 3000) + "\n[... CV truncated for performance ...]"
-      : input.cvText;
+    let cvPreview = input.cvText;
+    if (input.cvText.length > CV_CONTEXT_LIMIT) {
+      const initial = input.cvText.slice(0, CV_CONTEXT_LIMIT);
+      const windowStart = CV_CONTEXT_LIMIT - TRUNCATION_BOUNDARY_WINDOW;
+      const boundaryWindow = initial.slice(windowStart);
+      const newlineIndex = boundaryWindow.lastIndexOf("\n");
+      const sentenceMatches = [...boundaryWindow.matchAll(/[.!?](?=\s|$)/g)];
+      const sentenceIndex = sentenceMatches.at(-1)?.index ?? -1;
+      const whitespaceMatches = [...boundaryWindow.matchAll(/\s/g)];
+      const whitespaceIndex = whitespaceMatches.at(-1)?.index ?? -1;
+      const boundaryIndex =
+        newlineIndex >= 0
+          ? windowStart + newlineIndex
+          : sentenceIndex >= 0
+            ? windowStart + sentenceIndex + 1
+            : whitespaceIndex >= 0
+              ? windowStart + whitespaceIndex
+              : CV_CONTEXT_LIMIT;
+
+      cvPreview = `${initial.slice(0, boundaryIndex)}\n[... CV truncated for performance ...]`;
+    }
     
     return `JOB TITLE: ${input.jobTitle ?? "(unspecified)"}
 COMPANY: ${input.company ?? "(unspecified)"}
@@ -93,9 +211,13 @@ ${cvPreview}`;
     model: modelId,
 
     async analyzeMatch(input) {
-      const system = `You are scoring how well a candidate's CV matches a specific job description and identifying actionable gaps.
+      const system = `You are evaluating how well a candidate's CV matches a specific job description.
 
-Score strictly against what THIS job description requires — do not give credit for generic relevance. If a requirement is not clearly stated in the CV, treat it as missing.
+Evaluate ONLY against requirements and preferences stated in THIS job description. Do not award points merely because the candidate has generally impressive, related, or industry-relevant experience.
+
+Treat the candidate's CV as the sole source of truth about the candidate. The job description describes employer requirements; it is NOT evidence that the candidate possesses them. If a qualification, skill, responsibility, experience, license, certification, tool, achievement, or other requirement is not clearly supported by the CV, treat it as unsupported.
+
+For scoring purposes, if a JD requirement is not supported by the CV, treat it as unevidenced and missing from the application. This affects the match score even though the candidate may possess the requirement outside the CV. Never infer or state that the candidate definitely lacks something solely because it is absent from the CV.
 
 Return STRICT JSON only, no prose, no markdown fences:
 {
@@ -103,25 +225,57 @@ Return STRICT JSON only, no prose, no markdown fences:
   "strengths": ["...", max 5],
   "gaps": [
     {
-      "issue": "<specific missing requirement or weakness>",
+      "issue": "<specific unsupported or partially supported JD requirement>",
       "severity": "critical" | "important" | "minor",
       "recommendation": "<practical action candidate can take without lying>"
     }
   ]
 }
 
-Rules:
-- Each strength must name something concrete in the CV and tie it to the JD.
-- Base every gap strictly on the JD and CV text. Do not invent qualifications or experience.
-- "critical": only mandatory licenses, certifications, legally required qualifications, or explicitly required mandatory experience that could genuinely prevent consideration.
-- "important": meaningful missing skills or requirements impacting candidate fit.
-- "minor": lower-impact preferences or cosmetic improvements.
-- Recommendations must be practical and honest. Never recommend falsely claiming qualifications. Max 5 strengths, max 5 gaps.`;
+SCORING RUBRIC:
+- Determine matchScore from coverage of THIS job's actual requirements.
+- Give greatest weight, in this general order, to: mandatory/legal requirements and explicit deal-breakers; required experience and core responsibilities; required technical/domain skills and named tools; preferred qualifications and nice-to-have skills.
+- Do NOT mechanically count keywords. Evaluate whether the underlying requirement is actually supported by CV evidence.
+- A high score requires strong coverage of important requirements, not merely many superficial keyword matches.
+- Use these ranges as calibration guidance, not a mechanical mathematical formula:
+  - 90-100: Exceptional alignment. Nearly all important requirements are clearly supported and there are no meaningful critical gaps.
+  - 75-89: Strong alignment. Most important requirements are supported with limited non-critical gaps.
+  - 60-74: Moderate alignment. Several relevant requirements are supported, but meaningful gaps remain.
+  - 40-59: Weak alignment. Some relevant evidence exists, but multiple important requirements are unsupported.
+  - 0-39: Poor alignment. Major mandatory/core requirements are unsupported or CV evidence has limited relevance to the role.
+- A genuine critical gap must materially constrain the score. Do not produce a very high score because minor requirements match when an explicit mandatory requirement is unsupported.
+
+STRENGTH RULES:
+- Every strength must identify concrete CV evidence and connect it to a specific JD requirement.
+- Prioritize the strongest and most job-relevant evidence.
+- Do not list generic qualities unless supported by the CV and relevant to the JD.
+- Max 5 strengths.
+
+GAP RULES:
+- Base every gap strictly on the JD and CV. Do not invent requirements that the JD does not state.
+- Do not treat something as a candidate weakness merely because it is absent from the CV unless it is actually required or preferred by the JD.
+- Describe absence of evidence precisely. Use wording such as "The CV does not evidence...", "The CV does not mention...", or "The application does not demonstrate...".
+- Do not write that the candidate "lacks", "does not have", or "has no experience with" a requirement unless the CV explicitly establishes that fact.
+- Gap severity reflects the importance of the unevidenced JD requirement to this application, not certainty about the candidate's real-world qualifications.
+- "critical": only mandatory licenses, certifications, legal requirements, explicitly mandatory qualifications, or explicitly required experience/requirements that could reasonably prevent consideration.
+- "important": meaningful missing requirements, skills, responsibilities, tools, or experience that materially reduce fit but are not clear deal-breakers.
+- "minor": lower-impact preferences, nice-to-haves, or relatively small alignment improvements.
+- Max 5 gaps.
+
+RECOMMENDATION RULES:
+- Recommendations must be practical, truthful, and reflect uncertainty when the CV is silent.
+- Never assume that an unevidenced qualification, license, certification, skill, tool, or experience is definitely absent outside the CV.
+- For an unevidenced license, certification, or qualification: if the candidate holds it, recommend adding it prominently to the CV; if the CV does not establish whether they hold it, recommend verifying whether they meet the requirement; if they do not hold it, clearly state that it remains a qualification gap and may affect eligibility. Do not assume that obtaining it is feasible, quick, or necessarily the appropriate next action.
+- For an unevidenced skill or tool: recommend adding specific CV evidence if the candidate has it; otherwise identify it as a genuine development gap.
+- For unevidenced years or duration of experience: state that the CV does not demonstrate the required duration; recommend making it explicit if supported, otherwise note that the qualification gap remains.
+- Never recommend falsely claiming a qualification, adding unsupported experience, inventing metrics, pretending to know a tool, or hiding or misrepresenting a mandatory qualification gap.
+- When a requirement cannot legitimately be addressed through clearer CV evidence, say so.`;
       const text = await callGroq({
         system,
         user: `${contextBlock(input)}\n\nJSON only.`,
-        maxTokens: 768,
-        json: true,
+        maxTokens: 1536,
+        jsonSchema: { name: "match_analysis", schema: matchAnalysisSchema },
+        temperature: 0,
       });
       const p = parseJson<Partial<MatchAnalysis>>(text);
       const rawGaps = Array.isArray(p.gaps) ? p.gaps : [];
@@ -162,32 +316,83 @@ Rules:
 
     async extractKeywords(input) {
       const system = `Compare the job description's required/preferred terms against the candidate's CV.
-In addition to extracting keywords, identify 2 to 4 vague or weak bullet points in the candidate's CV and rewrite them to naturally integrate missing keywords/skills required by the job.
+
+In addition to extracting matched and missing requirements, identify up to 6 CV bullet points that could be improved for clarity, relevance, or ATS alignment WITHOUT changing the underlying facts.
 
 Return STRICT JSON only, no prose, no markdown fences:
+
 {
   "matchedKeywords": ["...", max 12],
   "missingKeywords": ["...", max 12],
   "suggestedRewrites": [
     {
       "original": "<exact line/bullet from candidate's CV>",
-      "targetKeywords": ["<missing keyword 1>", "<missing keyword 2>"],
-      "suggested": "<rewritten bullet integrating target missing keywords into the candidate's experience>"
+      "targetKeywords": ["<JD-relevant term that is factually supported by the CV and relevant to this rewrite>"],
+      "suggested": "<factual rewrite using only CV-supported evidence>"
     }
   ]
 }
 
 Rules:
+
 - Prioritize hard requirements first: licenses/certifications, named tools, languages, frameworks, years of experience.
-- Only include a term in matchedKeywords if it appears in the JD AND is clearly supported by the CV.
-- Only include a term in missingKeywords if the JD requires or prefers it and the CV does not mention it.
-- Each item in suggestedRewrites MUST use an actual phrase/bullet from the CV as "original" so the user can replace it.
-- Do not invent non-existent degrees or roles, but elevate generic bullet statements with concrete action verb wording and missing JD skills.`;
+
+- Treat the candidate's CV as the sole source of truth for every claim about the candidate. The job description describes the employer's requirements; it may guide relevance, emphasis, terminology, and prioritization, but it is NOT evidence that the candidate possesses a requirement.
+
+- Only include a term in matchedKeywords if the JD requires or prefers it and its underlying factual meaning is clearly supported by the CV, even if the CV uses factually equivalent wording rather than the literal term.
+
+- Only include a term in missingKeywords if the JD requires or prefers it and its underlying factual meaning is not supported by the CV.
+
+- Missing must remain missing. Never insert a missing or otherwise unsupported JD skill or keyword into suggestedRewrites, and never imply that the candidate possesses it.
+
+- targetKeywords may contain only JD-relevant terms whose underlying factual meaning is already supported by the candidate's CV and is relevant to that specific rewrite. It must never contain missing skills to insert, unsupported JD keywords, or inferred candidate qualifications.
+
+- Each item in suggestedRewrites MUST use an actual phrase/bullet from the CV as "original".
+
+- A suggested rewrite must preserve the original evidence's factual meaning, level of responsibility, scope, seniority, and outcome.
+
+- Never invent, add, infer, or exaggerate unsupported skills, responsibilities, tools/software, certifications, licenses, degrees, job titles, employers, achievements, metrics/numbers/percentages, volumes/frequency, duration/years of experience, leadership/seniority, scope of responsibility, or outcomes/impact.
+
+- Do not turn participation or assistance into ownership, leadership, or sole responsibility.
+
+- JD terminology may be used only when it is a clearer or more standard, factually equivalent description of activity already evidenced by the CV.
+
+Example:
+CV evidence:
+"Helped patients understand how to take their medicines correctly."
+
+JD terminology:
+"Medication counselling"
+
+Using "medication counselling" is acceptable because the underlying activity is already supported.
+
+But:
+CV evidence:
+"Provided medication counselling."
+
+JD requirement:
+"Immunization services"
+
+Do NOT add "immunization" because that activity is not evidenced by the CV.
+
+- Rewrites may improve only:
+  - clarity
+  - conciseness
+  - action-oriented wording
+  - professional phrasing
+  - relevance/emphasis
+  - ATS terminology that is factually equivalent to existing CV evidence
+
+- If a safe improvement would require unsupported information, either provide a conservative wording-only improvement or omit that rewrite.
+
+- Prefer high-value rewrites over filling the quota. Return fewer than 6 if only a smaller number are genuinely worth improving.
+
+- Do not rewrite already strong bullets unless the rewrite provides a clear improvement in relevance or clarity.`;
       const text = await callGroq({
         system,
         user: `${contextBlock(input)}\n\nJSON only.`,
-        maxTokens: 800,
-        json: true,
+        maxTokens: 2048,
+        jsonSchema: { name: "keyword_analysis", schema: keywordAnalysisSchema },
       });
       const p = parseJson<Partial<KeywordAnalysis>>(text);
       const rawRewrites = Array.isArray(p.suggestedRewrites) ? p.suggestedRewrites : [];
@@ -218,22 +423,50 @@ Rules:
           : tone === "confident"
           ? " Confident, impactful, ownership-focused tone."
           : "";
-      const system = `Write a tailored cover letter in first person, 320-380 words, plain text only
-(no markdown, no placeholders like [Company Name]).${toneLine}
+      const system = `Write a highly tailored cover letter for the candidate applying to the job described in the context. Write in first person.${toneLine}
 
-Rules:
-- Open by naming the actual role and company from the context.
-- Ground every claim in the CANDIDATE CV text — never invent credentials,
-  licenses, employers, or years of experience not present in the CV.
-- Connect 2-3 specific CV details to specific requirements in the job
-  description.
-- End with a direct, confident closing line — skip "I look forward to
-  hearing from you."`;
+Target approximately 220-300 words. Prioritize relevance and substance over reaching a specific word count.
+
+ROLE AND COMPANY IDENTIFICATION:
+- Use the explicit JOB TITLE and COMPANY fields when provided.
+- If either field is unspecified, infer it from the job description only when it is clearly stated.
+- Never invent, guess, or embellish the role or company.
+- If the role cannot be established, refer naturally to "this role", "the position", or "this opportunity" rather than inventing a title.
+- If the company cannot be established, write naturally without naming one. Do not insert placeholders, fabricate a company, or force awkward substitutes such as "your organization".
+
+FACTUAL INTEGRITY:
+- Treat the candidate's CV as the sole source of truth about the candidate. The job description describes what the employer wants; it is NOT evidence about what the candidate has done.
+- Never invent, infer, exaggerate, or imply unsupported skills, responsibilities, tools/software, certifications, licenses, degrees, employers, job titles, achievements, metrics/numbers, years of experience, leadership, scope of responsibility, or outcomes/impact.
+- Do not convert related experience into experience the candidate does not actually have.
+- Do not claim that the candidate meets a requirement merely because it appears in the job description.
+- Never invent or imply unsupported facts about the employer, including its culture, mission, values, products, team, working environment, or priorities. Refer to employer information only when explicitly supported by the provided job context.
+
+TAILORING:
+- Before writing, identify the 2-3 most important requirements or responsibilities in THIS job description, then select the strongest explicit CV evidence relevant to them.
+- Build the letter around those concrete CV-to-JD connections. It must explain why this candidate makes sense for THIS role, not merely summarize the CV.
+- Prioritize concrete evidence, role-specific reasoning, and relevant experience, projects, or skills over generic claims.
+- When a JD requirement is not evidenced by the CV, do not pretend the candidate possesses it, insert it into the letter, or unnecessarily advertise every weakness. Normally build the strongest truthful case around supported alignment.
+- If an important unevidenced requirement genuinely needs acknowledgment to avoid misleading wording, address it briefly and conservatively without speculating about whether the candidate possesses it outside the CV.
+- Do not keyword-stuff, copy JD sentences unnecessarily, or repeat CV bullets without explaining their relevance.
+
+STRUCTURE:
+- Opening: use the role and company only as resolved by the identification rules above; give a concise, specific reason the candidate is relevant; avoid generic openings such as "I am writing to express my interest..."
+- Body: build the argument around 2-3 specific pieces of CV evidence and explain their relevance; do not merely repeat CV bullets; prefer evidence and connection over generic adjectives.
+- Closing: briefly reinforce the candidate's potential contribution and end confidently and professionally; avoid clichés such as "I look forward to hearing from you."
+
+STYLE:
+- Sound like a capable human applicant rather than an AI-generated template.
+- Be concise, specific, natural, and professional.
+- Prefer concrete evidence and role-specific reasoning over generic enthusiasm or confidence.
+- Stock phrases such as "make a difference", "strong candidate", "leverage my skills", "excited about the opportunity", or "make a positive impact" may be used only when the surrounding sentence adds specific, credible substance; never use them as filler.
+- Vary sentence structure and avoid beginning too many consecutive sentences with "I".
+- Avoid inflated formality, excessive adjectives, exaggerated confidence, excessive enthusiasm, employer flattery, buzzwords, corporate clichés, repetition, generic filler, and summarizing the entire CV.
+- Use plain text only. Do not use markdown, headings, or placeholders such as [Company Name].
+- Return ONLY the finished cover letter.`;
       return await callGroq({
         system,
         user: `${contextBlock(input)}\n\nWrite the cover letter.`,
         maxTokens: 1280,
-        json: false,
       });
     },
   };

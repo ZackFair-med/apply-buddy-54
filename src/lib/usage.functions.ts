@@ -50,7 +50,7 @@ export const getUsageSummary = createServerFn({ method: "GET" })
     const limits = getPlanLimits(plan);
 
     const coverWindow: "day" | "week" = limits.coverLetterPerDay != null ? "day" : "week";
-    const coverLimit = limits.coverLetterPerDay ?? limits.coverLetterPerWeek;
+    const coverLimit = limits.coverLetterPerDay ?? (limits as { coverLetterPerWeek?: number | null }).coverLetterPerWeek ?? null;
 
     const [{ count: cvCount, error: cvError }, matchUsed, kwUsed, coverUsed] = await Promise.all([
       supabase.from("cvs").select("id", { count: "exact", head: true }).eq("user_id", userId),

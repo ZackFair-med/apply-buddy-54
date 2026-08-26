@@ -7,11 +7,11 @@ export type Plan = "free" | "paid";
  */
 export const PLAN_LIMITS = {
   free: {
-    cvProfiles: 1,
-    matchScorePerDay: 3,
-    keywordsPerDay: 2,
-    coverLetterPerWeek: 1,
-    coverLetterPerDay: null,
+    cvProfiles: 3,
+    matchScorePerDay: 10,
+    keywordsPerDay: 10,
+    coverLetterPerWeek: null,
+    coverLetterPerDay: 5,
   },
   paid: {
     cvProfiles: 5,

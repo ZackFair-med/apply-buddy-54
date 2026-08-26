@@ -148,7 +148,8 @@ SUPABASE_URL=...
 SUPABASE_PUBLISHABLE_KEY=...
 AI_PROVIDER=groq
 AI_API_KEY=...          # Groq API key
-AI_MODEL=llama-3.1-8b-instant   # Groq model used in production
+AI_MODEL=openai/gpt-oss-120b    # Primary Groq production model
+AI_FALLBACK_MODEL=openai/gpt-oss-20b # Used only if the primary model is unavailable
 ```
 
 No API keys are committed to the repo — all secrets are set as environment variables in Vercel for the live deployment.

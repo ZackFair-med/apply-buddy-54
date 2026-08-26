@@ -78,7 +78,7 @@
   /* ApplyPilot palette — paper, ink, deep green, brass */
   --background: #FBFBF9;
   --foreground: #1A2420;
-  --card: #F3F1EA;
+  --card: #FFFFFF;
   --card-foreground: #1A2420;
   --popover: #FBFBF9;
   --popover-foreground: #1A2420;
@@ -88,12 +88,12 @@
   --secondary-foreground: #1A2420;
   --muted: #F3F1EA;
   --muted-foreground: #6B7A73;
+  --border: rgba(107, 122, 115, 0.35);
   --accent: #B8935F;
   --accent-foreground: #1A2420;
   --destructive: #B3413A;
   --destructive-foreground: #FBFBF9;
-  --border: rgba(107, 122, 115, 0.25);
-  --input: rgba(107, 122, 115, 0.25);
+  --input: rgba(107, 122, 115, 0.35);
 
   --ring: #1F4D3D;
   --chart-1: #1F4D3D;

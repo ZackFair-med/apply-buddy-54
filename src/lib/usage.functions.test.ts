@@ -27,14 +27,14 @@ afterEach(() => {
 });
 
 describe("getUsageSummary", () => {
-  it("reports free limits with a weekly cover-letter window", async () => {
+  it("reports public-beta limits with a daily cover-letter window", async () => {
     const { context } = contextFor("free", { cvs: 1, usage: 2 });
     await expect(callServerFn(getUsageSummary, { context })).resolves.toEqual({
       plan: "free",
-      cvProfiles: { used: 1, limit: 1 },
-      matchScore: { used: 2, limit: 3, window: "day" },
-      keywords: { used: 2, limit: 2, window: "day" },
-      coverLetter: { used: 2, limit: 1, window: "week" },
+      cvProfiles: { used: 1, limit: 3 },
+      matchScore: { used: 2, limit: 10, window: "day" },
+      keywords: { used: 2, limit: 10, window: "day" },
+      coverLetter: { used: 2, limit: 5, window: "day" },
     });
   });
 
@@ -56,7 +56,7 @@ describe("getUsageSummary", () => {
     });
   });
 
-  it("counts daily usage from midnight UTC and weekly usage from 7 days back", async () => {
+  it("counts public-beta usage from midnight UTC", async () => {
     const { context, ops } = contextFor("free", { cvs: 0, usage: 0 });
     await callServerFn(getUsageSummary, { context });
 
@@ -66,7 +66,7 @@ describe("getUsageSummary", () => {
     expect(gteValues).toEqual([
       "2026-03-10T00:00:00.000Z",
       "2026-03-10T00:00:00.000Z",
-      "2026-03-03T15:30:00.000Z",
+      "2026-03-10T00:00:00.000Z",
     ]);
   });
 });
